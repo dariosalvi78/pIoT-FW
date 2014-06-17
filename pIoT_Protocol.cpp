@@ -20,16 +20,24 @@ extern "C"
 #include <pIoT_Protocol.h>
 
 //Addresses:
-byte broadCastAddress[4] = {BROADCAST_ADDR};
-byte baseAddress[4] = {BASE_ADDR};
-byte thisAddress[4] = {1,2,3,4}; //just a default address
+byte broadCastAddress[4];
+byte thisAddress[4];
 
-boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqPin, byte myAdd[]) {
+
+
+boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqPin, long myAdd) {
     NRF24::configure(chipEnablePin, chipSelectPin, irqPin);
-    thisAddress[0] = myAdd[0];
-    thisAddress[1] = myAdd[1];
-    thisAddress[2] = myAdd[2];
-    thisAddress[3] = myAdd[3];
+
+    long brdcst = BROADCAST_ADDR;
+    broadCastAddress[0] =  brdcst & 0xFF ;
+    broadCastAddress[1] = (brdcst >> 8) & 0xFF;
+    broadCastAddress[2] = (brdcst >> 16) & 0xFF;
+    broadCastAddress[3] = (brdcst >> 24) & 0xFF;
+
+    thisAddress[0] = myAdd & 0xFF ;
+    thisAddress[1] = (myAdd >> 8) & 0xFF;
+    thisAddress[2] = (myAdd >> 16) & 0xFF;
+    thisAddress[3] = (myAdd >> 24) & 0xFF;
 
     //Init the nrf24
     nRF24.init();
@@ -55,12 +63,17 @@ boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqPin, byte myA
     return true;
 }
 
-boolean send(boolean broadcast, byte* destination, unsigned int msgType, byte* data, int len){
+boolean send(boolean broadcast, long destination, unsigned int msgType, byte* data, int len){
     if(broadcast){
         if(!nRF24.setTransmitAddress(broadCastAddress)) return false;
     }
     else{
-        if(!nRF24.setTransmitAddress(destination)) return false;
+        byte destaddr[4];
+        destaddr[0] = destination & 0xFF ;
+        destaddr[1] = (destination >> 8) & 0xFF;
+        destaddr[2] = (destination >> 16) & 0xFF;
+        destaddr[3] = (destination >> 24) & 0xFF;
+        if(!nRF24.setTransmitAddress(destaddr)) return false;
     }
     unsigned int totlen = len + 6;
     byte pkt[totlen];
@@ -78,9 +91,9 @@ boolean send(boolean broadcast, byte* destination, unsigned int msgType, byte* d
     return nRF24.send(pkt, totlen, broadcast);
 }
 
-boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, byte* sender, unsigned int msgType, byte* data, int len)){
+boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender, unsigned int msgType, byte* data, int len)){
     boolean broadcast;
-    byte sender[4];
+    long sender;
     unsigned int msgType;
     int len;
     byte buffer[NRF24_MAX_MESSAGE_LEN];
@@ -89,10 +102,7 @@ boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, byte* sende
     if(nRF24.waitAvailableTimeout(timeoutMS)){
             if(nRF24.recv(&pipe, buffer, &totlen)){
                 broadcast = (pipe == BROADCAST_PIPE);
-                sender[0] = buffer[0];
-                sender[1] = buffer[1];
-                sender[2] = buffer[2];
-                sender[3] = buffer[3];
+                sender = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
                 msgType = (unsigned int)(buffer[5] <<8) + (unsigned int)buffer[4];
                 len = totlen - 6;
                 byte data[len];

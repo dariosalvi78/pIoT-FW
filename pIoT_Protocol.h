@@ -22,39 +22,26 @@
 #define BROADCAST_PIPE 0
 
 //Default broadcast address
-#define BROADCAST_ADDR 0,255,0,255
+#define BROADCAST_ADDR 16711935
 
 //The pipe used for private messages
 #define PRIVATE_PIPE 1
 
 //Default adrress of the base station
-#define BASE_ADDR 255,0,255,0
+#define BASE_ADDR -2130771712
 
 //Default radio channel
 #define RF_CHANNEL 10
-
-
-/** Local variable used to store the broadcast address.
-*/
-extern byte broadCastAddress[4];
-
-/** Local variable used to store the base address.
-*/
-extern byte baseAddress[4];
-
-/** Local variable used to store the pIoT address.
-*/
-extern byte thisAddress[4];
 
 
 /** Configures and starts the radio.
  * init() must be called to initialise the interface and the radio module
  * @param chipEnablePin the Arduino pin to use to enable the chip for transmit/receive
  * @param chipSelectPin the Arduino pin number of the output to use to select the NRF24 before
- * @param myAddress the address of this node
+ * @param myAddress the address of this node, expressed as a long (from -2,147,483,648 to 2,147,483,647)
  * @return true on success
  */
-boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqpin, byte myAddress[]);
+boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqpin, long myaddress);
 
 /** Sends a message to another pIoT.
  * @param broadcast true if bradcast
@@ -63,7 +50,7 @@ boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqpin, byte myA
  * @param len length of the payload
  * @return true if sent
  */
-boolean send(boolean broadcast, byte* destination, unsigned int msgType, byte* data, int len);
+boolean send(boolean broadcast, long destination, unsigned int msgType, byte* data, int len);
 
 /** Receives a message.
  * @param timeoutMS a timeout in milliseconds
@@ -74,7 +61,7 @@ boolean send(boolean broadcast, byte* destination, unsigned int msgType, byte* d
  * - data the payload
  * - len the length of the payload
  */
-boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, byte* sender, unsigned int msgType, byte* data, int len));
+boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender, unsigned int msgType, byte* data, int len));
 
 
 #endif // pIoT_PROTOCOL_H_INCLUDED
