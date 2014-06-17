@@ -52,15 +52,15 @@ On the base:
 Brief API description:
 ----------------------
 
-*  startRadio(byte chipEnablePin, byte chipSelectPin, byte irqpin, byte myAddress[]) is used to initialize the radio module
-*  send(boolean broadcast, byte* destination, unsigned int msgType, byte* data, int len) for sending packets, note the identifier of the message: msgType
-*  receive(unsigned int timeoutMS, void (*f)(boolean broadcast, byte* sender, unsigned int msgType, byte* data, int len)) is used for receiving messages. The function waits until the timeoutMS has expired or a packed has been received
-*  sleepUntil(int seconds, int pinsN, ...) is used to sleep for a certain number of seconds and/or a pin changes state
-* readSerial(int millis, void (*f)(char* dataName, char* msg)) reads the serial port and wait until a message has been received or millis has passed. When a message is received, it is passed to the function f
-* JSONtoStringArray(char* line, char** arr, int* len) is used to parse JSON arrays
-* JSONsearchDataName(char* line, char* dataname) for searching a certain name of an object
-* JSONtoULong(char* line, char* dataName) searches for a certain name and converts the value to a long
-* JSONtoDouble(char* line, char* dataName) searches for a certain name and converts the value to a double
-* JSONtoBoolean(char* line, char* dataName) searches for a certain name and converts the value to a boolean
+*  `startRadio(byte chipEnablePin, byte chipSelectPin, byte irqpin, long myAddress)` is used to initialize the radio module
+*  `send(boolean broadcast, long destination, unsigned int msgType, byte* data, int len)` for sending packets, note the identifier of the message: msgType
+*  `receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender, unsigned int msgType, byte* data, int len))` is used for receiving messages. The function waits until the timeoutMS has expired or a packed has been received
+*  `sleepUntil(int seconds, int pinsN, ...)` is used to sleep for a certain number of seconds and/or a pin changes state
+* `readSerial(int millis, void (*f)(char* dataName, char* msg))` reads the serial port and wait until a message has been received or millis has passed. When a message is received, it is passed to the function f
+* `JSONtoStringArray(char* line, char** arr, int* len)` is used to parse JSON arrays
+* `JSONsearchDataName(char* line, char* dataname)` for searching a certain name of an object
+* `JSONtoULong(char* line, char* dataName)` searches for a certain name and converts the value to a long
+* `JSONtoDouble(char* line, char* dataName)` searches for a certain name and converts the value to a double
+* `JSONtoBoolean(char* line, char* dataName)` searches for a certain name and converts the value to a boolean
 
 see the examples folders for example sketches.
