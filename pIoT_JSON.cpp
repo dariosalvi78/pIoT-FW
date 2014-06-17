@@ -87,33 +87,6 @@ boolean JSONtoBoolean(char* line, char* dataName) {
     return false;
 }
 
-void JSONtoAddress(byte* address, char* msg){
-    char* addrpt = JSONsearchDataName(msg, "address");
-    int len = 0;
-    char* addrstrs[4];
-    JSONtoStringArray(addrpt, addrstrs, &len);
-    if(len == 3) {
-        address[0] = (byte) strtoul(addrstrs[0], NULL, 10);
-        address[1] = (byte) strtoul(addrstrs[1], NULL, 10);
-        address[2] = (byte) strtoul(addrstrs[2], NULL, 10);
-        address[4] = (byte) strtoul(addrstrs[3], NULL, 10);
-    }
-}
-
-void addressToJSON(char* stringbuffer, byte* address){
-    strcpy(stringbuffer, "\"address\": [");
-    strcat(stringbuffer, itoa(address[0], stringbuffer, 10));
-    strcat(stringbuffer, ",");
-    strcat(stringbuffer, itoa(address[1], stringbuffer, 10));
-    strcat(stringbuffer, ",");
-    strcat(stringbuffer, itoa(address[2], stringbuffer, 10));
-    strcat(stringbuffer, ",");
-    strcat(stringbuffer, itoa(address[3], stringbuffer, 10));
-    strcat(stringbuffer, "]");
-}
-
-
-
 static char buffer[JSON_STRING_BUFFER_LEN];
 static int buffPtr = 0;
 static int level =0;

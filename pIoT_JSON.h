@@ -56,14 +56,3 @@ boolean JSONtoBoolean(char* line, char* dataName);
  */
 void readSerial(int millis, void (*f)(char* dataName, char* msg));
 
-/** Utility function to parse the "address" field
- * @param address a buffer of 3 bytes where to put the address
- * @param msg the JSON message
- */
-void JSONtoAddress(byte* address, char* msg);
-
-/** Utility function to generate the JSON string for the address
- * @param stringbuffer a buffer where the JSON string will be put, consider at least 30 characters
- * @param address the address as byte array
- */
-void addressToJSON(char* stringbuffer, byte* address);
