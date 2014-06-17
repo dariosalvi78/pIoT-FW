@@ -21,9 +21,14 @@ Design decisions:
 -----------------
 
 1.  the library contains C++ parts, but the API is modelled as C functions
-2.  the library is split into four parts: 1) to manage the nRF24L01+ module, 2) to implement a simple protocol on top of the radio module, 3) to implement power control in the microcontroller, 4) to implement the communication between a device and the server PC
+2.  the library is split into four parts:
+  1. to manage the nRF24L01+ module,
+  2. to implement a simple protocol on top of the radio module, 
+  3. to implement power control in the microcontroller, 
+  4. to implement the communication between a device and the server PC
 3.  the communication among devices is done through *messages*, each type of message defined by an identifier. The library does not go into the detail of the content of the message, this is left to the user to be defined (for example by defining a struct)
 4.  the communication with the server PC is done through JSON messages
+
 
 Usage:
 ------
