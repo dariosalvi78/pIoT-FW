@@ -43,6 +43,11 @@
  */
 boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqpin, long myaddress);
 
+/** Shuts the radio module down.
+ * To restart, you don't need to call startRadio.
+ */
+boolean stopRadio();
+
 /** Sends a message to another pIoT.
  * @param broadcast true if bradcast
  * @param destination address of the destination

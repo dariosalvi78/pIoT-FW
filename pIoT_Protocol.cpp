@@ -63,6 +63,10 @@ boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqPin, long myA
     return true;
 }
 
+boolean stopRadio(){
+    nRF24.powerDown();
+}
+
 boolean send(boolean broadcast, long destination, unsigned int msgType, byte* data, int len){
     if(broadcast){
         if(!nRF24.setTransmitAddress(broadCastAddress)) return false;
