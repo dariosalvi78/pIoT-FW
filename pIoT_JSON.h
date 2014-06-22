@@ -1,4 +1,4 @@
-/** Trivial JSON messages parser for Sensorino base.
+/** Trivial JSON messages parser for pIoT base.
  * The name of the first object identifies the type of message.
  *  A common fields is "address".
  *
@@ -7,7 +7,12 @@
  * Licensed under the GPL license http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <pIoT_Protocol.h>
+#if ARDUINO >= 100
+#include <Arduino.h>
+#else
+#include <wiring.h>
+#include <pins_arduino.h>
+#endif
 
 /** Separates an array into an array of strings.
  * @param line a pointer to the line to be analyzed

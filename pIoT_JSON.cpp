@@ -132,6 +132,7 @@ void readSerial(int mis, void (*f)(char* dataName, char* msg)) {
 
         if(b=='}'){
             if(level == 1){
+
                 //The message is complete, use it
                 char msg[buffPtr+1];
                 for(int i=0; i<buffPtr; i++)
@@ -149,8 +150,8 @@ void readSerial(int mis, void (*f)(char* dataName, char* msg)) {
 
                 f(firstword, msg);
             }
+			level--;
         }
-        level--;
     }
 }
 
