@@ -1,4 +1,4 @@
-/** Trivial JSON messages parser for pIoT base.
+/** Trivial JSON messages parser for Sensorino base.
  * The name of the first object identifies the type of message.
  *  A common fields is "address".
  *
@@ -35,6 +35,13 @@ char* JSONsearchDataName(char* line, char* dataname);
  * @return the parsed unsigned long
  */
 unsigned long JSONtoULong(char* line, char* dataName);
+
+/** Converts a JSON property to a long.
+ * @param line the line that contains the property
+ * @param dataName the property to be parsed, should not include the \"...\":
+ * @return the parsed long
+ */
+long JSONtoLong(char* line, char* dataName);
 
 /** Converts a JSON property to a double.
  * @param line the line that contains the property

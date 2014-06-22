@@ -65,6 +65,15 @@ unsigned long JSONtoULong(char* line, char* dataName)
     return 0;
 }
 
+long JSONtoLong(char* line, char* dataName)
+{
+	char* dataptr = JSONsearchDataName(line, dataName);
+    if (dataptr != NULL) {
+        return strtol(dataptr, NULL, 10);
+    }
+    return 0; 
+}
+
 double JSONtoDouble(char* line, char* dataName) {
     char* dataptr = JSONsearchDataName(line, dataName);
     if (dataptr != NULL)
@@ -132,7 +141,7 @@ void readSerial(int mis, void (*f)(char* dataName, char* msg)) {
 
         if(b=='}'){
             if(level == 1){
-
+			
                 //The message is complete, use it
                 char msg[buffPtr+1];
                 for(int i=0; i<buffPtr; i++)
