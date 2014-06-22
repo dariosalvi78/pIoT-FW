@@ -1,4 +1,4 @@
-/** Trivial JSON messages parser for Sensorino base.
+/** Trivial JSON messages parser for pIoT base.
  * The name of the first object identifies the type of message.
  *  A common fields is "address".
  *
@@ -15,7 +15,7 @@
 #endif
 
 /** Separates an array into an array of strings.
- * @param line a pointer to the line to be analyzed
+ * @param line a pointer to the line to be analysed
  * @param arr a pre-initialized array of char*
  * @param len the length of the resulting array
  */
@@ -25,7 +25,7 @@ void JSONtoStringArray(char* line, char** arr, int* len);
  * example: search for "data" returns a pointer next to the : after "data" has been found
  * @param line the line where to look into
  * @param dataname the name of the data without the ".." and :
- * @return the pointer where the data starts (aftert the :), NULL if not found
+ * @return the pointer where the data starts (after the :), NULL if not found
  */
 char* JSONsearchDataName(char* line, char* dataname);
 

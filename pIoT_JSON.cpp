@@ -1,4 +1,4 @@
-/** Trivial JSON messages parser for Sensorino base.
+/** Trivial JSON messages parser for pIoT base.
  * The name of the first object identifies the type of message.
  *  A common fields is "address".
  *
@@ -47,6 +47,7 @@ char* JSONsearchDataName(char* line, char* dataname)
 {
     char* dataptr = strstr(line, dataname);
     char* ptr = dataptr + strlen(dataname);
+			
     for(int i=0; i<strlen(dataptr); i++) {
         ptr += i;
         if(*ptr == ':') {
