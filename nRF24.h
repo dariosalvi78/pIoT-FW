@@ -298,10 +298,12 @@ public:
      * 250kbps (i.e. slow) data rate. The defaults are OK for faster data rates. If
      * the delay is too short, the symptoms wil be unreliable transmission, or tranmsission failures
      * @param delay The number of 250 microsecond intervals to wait for an ACK.
-     * @param count The number of retries to us.
+	 * The value ranges 0 to 15 the actual delay is multiplied by 250uS.
+     * @param count The number of retries to use.
+	 * Ranges from 0 to 15.
      * @return true on success
      */
-    static boolean setTXRetries(uint8_t delay, uint8_t count = 3);
+    static boolean setTXRetries(uint8_t delay, uint8_t count);
 
 
     /** Tells if two addresses are the same.
@@ -456,18 +458,20 @@ public:
 
     /** Starts the receiver and blocks until a valid received
      * message is available.
+	 * Turns the receiver on if it not already on.
      */
     static void waitAvailable();
 
-    /** Starts the receiver and blocks until a received message is available or a timeout
+    /** Starts the receiver and blocks until a received message is available or a timeout.
+	 * Turns the receiver on if it not already on.
      * @param timeout Maximum time to wait in milliseconds.
      * @return true if a message is available
      */
     static boolean waitAvailableTimeout(uint16_t timeout);
 
-    /** Turns the receiver on if it not already on.
-     * If there is a valid message available, copy it to buf and return true
-     * else return false.
+    /** If there is a valid message available, copy it to buf and returns true
+     * else returns false.
+	 * Does not turn receiver on (!).
      * If a message is copied, *len is set to the length (Caution, 0 length messages are permitted).
      * You should be sure to call this function frequently enough to not miss any messages
      * It is recommended that you call it in your main loop.

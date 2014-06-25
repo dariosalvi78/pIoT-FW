@@ -27,7 +27,7 @@
 //The pipe used for private messages
 #define PRIVATE_PIPE 1
 
-//Default adrress of the base station
+//Default address of the base station
 #define BASE_ADDR -2130771712
 
 //Default radio channel
@@ -44,12 +44,12 @@
 boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqpin, long myaddress);
 
 /** Shuts the radio module down.
- * To restart, you don't need to call startRadio.
+ * To restart it you don't need to call startRadio() explicitly.
  */
 boolean stopRadio();
 
 /** Sends a message to another pIoT.
- * @param broadcast true if bradcast
+ * @param broadcast true if broadcast
  * @param destination address of the destination
  * @param msgType type of message
  * @param len length of the payload
@@ -58,7 +58,7 @@ boolean stopRadio();
 boolean send(boolean broadcast, long destination, unsigned int msgType, byte* data, int len);
 
 /** Receives a message.
- * @param timeoutMS a timeout in milliseconds
+ * @param timeoutMS a time-out in milliseconds
  * @param f a function that treats the message with the following parameters:
  * - broadcast tells if the message was in broadcast
  * - sender the sender address

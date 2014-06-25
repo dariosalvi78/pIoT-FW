@@ -596,6 +596,7 @@ boolean NRF24::waitAvailableTimeout(uint16_t timeout)
 
 boolean NRF24::recv(uint8_t* pipe, uint8_t* buf, uint8_t* len)
 {
+		
     // Clear read interrupt
     spiWriteRegister(NRF24_REG_07_STATUS, NRF24_RX_DR);
 

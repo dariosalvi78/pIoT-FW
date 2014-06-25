@@ -1,7 +1,7 @@
 /** pIoT communication library.
- * This library goes on top of the nRF24L01 and simply adds the sender and a messsage type field.
+ * This library goes on top of the nRF24L01 and simply adds the sender and a message type field.
  * Decisions taken:
- * - pipe 0 is used as broadcast pipe, with shared address and no acks
+ * - pipe 0 is used as broadcast pipe, with shared address and no ACKs
  * - pipe 1 is used as private address
  * - nodes send their address
  * - addresses are 4 bytes long
@@ -45,7 +45,7 @@ boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqPin, long myA
     //set dynamic payload size
     if(!nRF24.setPayloadSize(0, 0)) return false;
     if(!nRF24.setPayloadSize(1, 0)) return false;
-    //Set address size to 3
+    //Set address size to 4
     if(!nRF24.setAddressSize(NRF24::NRF24AddressSize4Bytes)) return false;
     //Set CRC to 2 bytes
     if(!nRF24.setCRC(NRF24::NRF24CRC2Bytes)) return false;
