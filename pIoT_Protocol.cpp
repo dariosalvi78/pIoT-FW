@@ -59,7 +59,7 @@ boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqPin, long myA
     if(!nRF24.enablePipe(1)) return false;
     if(!nRF24.setAutoAck(1, true)) return false;
     //Configure retries
-    if(!nRF24.setTXRetries(3, 5)) return false;
+    if(!nRF24.setTXRetries(3, 10)) return false;
     return true;
 }
 
