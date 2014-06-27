@@ -524,6 +524,7 @@ void NRF24::asyncSend(uint8_t* data, uint8_t len, boolean noack)
         if(getTransmitAddress(addr))
             spiBurstWriteRegister(NRF24_REG_0A_RX_ADDR_P0, addr, len);
     }
+	
     spiBurstWrite(noack ? NRF24_COMMAND_W_TX_PAYLOAD_NOACK : NRF24_COMMAND_W_TX_PAYLOAD, data, len);//send data
     //signal send
     //digitalWrite(_chipEnablePin, LOW);
