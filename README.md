@@ -58,7 +58,7 @@ Brief API description:
 * `readSerial(int millis, void (*f)(char* dataName, char* msg))` reads the serial port and wait until a message has been received or millis has passed. When a message is received, it is passed to the function f
 * `JSONtoStringArray(char* line, char** arr, int* len)` is used to parse JSON arrays
 * `JSONsearchDataName(char* line, char* dataname)` for searching a certain name of an object
-* `JSONtoULong(char* line, char* dataName)` searches for a certain name and converts the value to a long
+* `JSONtoLong(char* line, char* dataName)` searches for a certain name and converts the value to a long
 * `JSONtoULong(char* line, char* dataName)` searches for a certain name and converts the value to an unsigned long
 * `JSONtoDouble(char* line, char* dataName)` searches for a certain name and converts the value to a double
 * `JSONtoBoolean(char* line, char* dataName)` searches for a certain name and converts the value to a boolean
