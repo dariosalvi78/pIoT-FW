@@ -52,6 +52,7 @@ Brief API description:
 ----------------------
 
 *  `startRadio(byte chipEnablePin, byte chipSelectPin, byte irqpin, long myAddress)` is used to initialize the radio module
+*  `stopRadio()` powers down the radio module
 *  `send(boolean broadcast, long destination, unsigned int msgType, byte* data, int len)` for sending packets, note the identifier of the message: msgType
 *  `receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender, unsigned int msgType, byte* data, int len))` is used for receiving messages. The function waits until the timeoutMS has expired or a packed has been received
 *  `sleepUntil(int seconds, int pinsN, ...)` is used to sleep for a certain number of seconds and/or a pin changes state
