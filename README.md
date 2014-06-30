@@ -36,9 +36,8 @@ Usage:
 The typical network configuration includes a PC with the server program (see pIoT-SW) installed on that is connected via USB and a serial adapter (see pIoT-HW) to a node called *base* which is a gateway between the server and the rest of the nodes. The other nodes communicate with the server by sending and receiving messages to the base. The base, most of the time, will only have to translate the messages to JSON back and forth, though some specific functionalities may be instantiated on the base without the intervention of the server or the rest of the nodes.
 
 PC <--USB--> base <--RF--> node
-     JSON           bytes
 
-In Arduino IDE: copy the directory into the *libraries* directory that is contained in the directory where all your Arduino sketches are (if it's not there, create one).
+In Arduino IDE: copy the directory into the *libraries* directory that is contained in the directory where all your Arduino sketches are (if it's not there, create one). Be careful, the Arduino IDE will not accept pIoT-FW as a valid directory name, you will have to rename it to some other name (for example just pIoT will do).
 
 On a node different than the base:
 
@@ -63,4 +62,4 @@ Brief API description:
 * `JSONtoDouble(char* line, char* dataName)` searches for a certain name and converts the value to a double
 * `JSONtoBoolean(char* line, char* dataName)` searches for a certain name and converts the value to a boolean
 
-see the examples folders for example sketches.
+see the [examples folder](https://github.com/dariosalvi78/pIoT-FW/tree/master/examples) for example sketches.
