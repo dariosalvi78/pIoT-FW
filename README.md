@@ -1,5 +1,5 @@
-pIoT-FW
-=======
+<img src="http://openclipart.org/people/Scout/Chick.svg" width="10%" height="10%"/> pIoT-FW
+===========================================================================================
 
 
 pIoT is an open source pico/personal framework for the Internet of Things (IoT).
