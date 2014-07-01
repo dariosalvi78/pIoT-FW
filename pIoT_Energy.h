@@ -35,4 +35,17 @@ void sleepUntil(int seconds, int pinsN, ...);
  */
 unsigned long getTotalSleepSeconds();
 
+/** Retrieves the value of the alimentation voltage
+ * this value i scomputed against an internal reference
+ * and might be unprecise
+ * @return the value in volts
+ */
+float getInternalVcc();
+
+/** Gives the internal temperature in chip.
+ * The value has an uncertainty of 10 degrees
+ * @return the temperature in Celsius
+ */
+float getInternalTemperature() ;
+
 #endif // pIoT_ENERGY_H_INCLUDED

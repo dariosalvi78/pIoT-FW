@@ -155,3 +155,28 @@ void sleepUntil(int seconds, int pinsN, ...){
 
     power_all_enable();
 }
+
+
+float getInternalVcc() {
+  long result;
+  // Read 1.1V reference against AVcc
+  ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+  delay(2);
+  ADCSRA |= _BV(ADSC);
+  while (bit_is_set(ADCSRA,ADSC));
+  result = ADCL;
+  result |= ADCH<<8;
+  result = 1126400L / result; // Back-calculate AVcc in mV
+  float retval = (float)result / 1000;
+  return retval;
+}
+
+//From: http://playground.arduino.cc/Main/InternalTemperatureSensor
+float getInternalTemperature() {
+  ADMUX = (_BV(REFS1) | _BV(REFS0) | _BV(MUX3));
+  ADCSRA |= _BV(ADEN);
+  delay(20);
+  ADCSRA |= _BV(ADSC);
+  while (bit_is_set(ADCSRA,ADSC));
+  return ((float)ADCW * 0.9873) - 330.12;
+}
