@@ -17,11 +17,11 @@ byte rfchannel = 50;
 //the pipe address, any would do
 byte pipeAddr[] = {1, 2, 3, 4};
 //use of autoacks
-boolean autoAcks = false;
+boolean autoAcks = true;
 //delays between retransmissions, 0 to 15
-byte delays = 1;
+byte delays = 2;
 //retransmissions, 0 to 15
-byte retries = 1;
+byte retries = 3;
 //data rate: NRF24DataRate1Mbps, NRF24DataRate2Mbps, NRF24DataRate250kbps
 NRF24::NRF24DataRate datarate = NRF24::NRF24DataRate2Mbps;
 //transmit power: NRF24TransmitPowerm18dBm, 12dBm, 6dBm, 0dbm
@@ -71,6 +71,7 @@ void loop() {
   if (! nRF24.send(pkt, 2, !autoAcks)) lost++;
   Serial.print(", lost ");
   Serial.println(lost);
+  nRF24.powerDown();
   delay(1000);
 #else
   nRF24.waitAvailable(); //waits forever, until a packet is received
