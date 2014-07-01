@@ -19,6 +19,10 @@ extern "C"
 
 #include <pIoT_Protocol.h>
 
+//Configure retries, for strong reliability use 3 as delay and >10 as retries number
+#define TX_RETR_DELAY 2
+#define TX_RETR_NUM 5
+
 //Addresses:
 byte broadCastAddress[4];
 byte thisAddress[4];
@@ -52,14 +56,13 @@ boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqPin, long myA
     //Set 2 Mbps, maximum power
     if(!nRF24.setRF(NRF24::NRF24DataRate2Mbps, NRF24::NRF24TransmitPower0dBm)) return false;
     //Configure pipes
+	if(!nRF24.enablePipe(0)) return false;
     if(!nRF24.setPipeAddress(0, broadCastAddress)) return false;
-    if(!nRF24.enablePipe(0)) return false;
-    if(!nRF24.setAutoAck(0, false)) return false;
+    if(!nRF24.setAutoAck(0, true)) return false;
+	if(!nRF24.enablePipe(1)) return false;
     if(!nRF24.setPipeAddress(1, thisAddress)) return false;
-    if(!nRF24.enablePipe(1)) return false;
     if(!nRF24.setAutoAck(1, true)) return false;
-    //Configure retries
-    if(!nRF24.setTXRetries(3, 10)) return false;
+    if(!nRF24.setTXRetries(TX_RETR_DELAY, TX_RETR_NUM)) return false;
     return true;
 }
 
@@ -103,20 +106,25 @@ boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender
     byte buffer[NRF24_MAX_MESSAGE_LEN];
     byte totlen;
     byte pipe;
-    if(nRF24.waitAvailableTimeout(timeoutMS)){
-            if(nRF24.recv(&pipe, buffer, &totlen)){
-                broadcast = (pipe == BROADCAST_PIPE);
-                sender = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
-                msgType = (unsigned int)(buffer[5] <<8) + (unsigned int)buffer[4];
-                len = totlen - 6;
-                byte data[len];
-                for(int i=0; i<len; i++)
-                    data[i] = buffer[i+6];
-
-                f(broadcast,sender, msgType, data, len);
-                return true;
-            }
-    }
+	
+	if(timeoutMS <=0){
+		if(!nRF24.powerUpRx())
+			return false;
+	}
+	else nRF24.waitAvailableTimeout(timeoutMS);
+    
+	if(nRF24.recv(&pipe, buffer, &totlen)){
+        broadcast = (pipe == BROADCAST_PIPE);
+        sender = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
+        msgType = (unsigned int)(buffer[5] <<8) + (unsigned int)buffer[4];
+        len = totlen - 6;
+        byte data[len];
+        for(int i=0; i<len; i++)
+            data[i] = buffer[i+6];
+      
+        f(broadcast,sender, msgType, data, len);
+        return true;
+       }
     return false;
 }
 

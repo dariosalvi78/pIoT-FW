@@ -463,7 +463,7 @@ boolean NRF24::powerDown()
     reg = reg &  ~NRF24_PWR_UP; //set the power up bit to 0
     spiWriteRegister(NRF24_REG_00_CONFIG, reg);
     digitalWrite(_chipEnablePin, LOW);
-    return true;
+    return !isPoweredUp();
 }
 
 boolean NRF24::powerUpRx()
@@ -512,7 +512,8 @@ boolean NRF24::powerUpTx()
 void NRF24::asyncSend(uint8_t* data, uint8_t len, boolean noack)
 {
     powerUpTx(); //set to transmit mode
-    if(! noack)  //if ack is set
+	
+	if(! noack)  //if ack is set
     {
         //Set both TX_ADDR and RX_ADDR_P0 for auto-ack with Enhanced ShockBurst:
         //From manual:
@@ -529,7 +530,7 @@ void NRF24::asyncSend(uint8_t* data, uint8_t len, boolean noack)
     //signal send
     //digitalWrite(_chipEnablePin, LOW);
     //delayMicroseconds(10);
-    digitalWrite(_chipEnablePin, HIGH);
+    //digitalWrite(_chipEnablePin, HIGH);
 }
 
 
@@ -538,8 +539,8 @@ boolean NRF24::send(uint8_t* data, uint8_t len, boolean noack)
     asyncSend(data, len, noack);
 
     //Radio will return to Standby II mode after transmission is complete
-    // Wait for either the Data Sent or Max ReTries flag, signalling the
-    // end of transmission
+    //Wait for either the Data Sent or Max ReTries flag, signalling the
+    //end of transmission
     uint8_t status;
     unsigned long starttime = millis();
     while (((millis() - starttime) < 2000) && //times out after 2 seconds
@@ -588,22 +589,25 @@ boolean NRF24::waitAvailableTimeout(uint16_t timeout)
 {
     if(!powerUpRx())
         return false;
+	
     unsigned long starttime = millis();
     while ((millis() - starttime) < timeout)
+	{
         if (available())
             return true;
+	}
     return false;
 }
 
 boolean NRF24::recv(uint8_t* pipe, uint8_t* buf, uint8_t* len)
 {
+    // 0 microsecs @ 8MHz SPI clock
+    if (!available())
+        return false;
 		
     // Clear read interrupt
     spiWriteRegister(NRF24_REG_07_STATUS, NRF24_RX_DR);
 
-    // 0 microsecs @ 8MHz SPI clock
-    if (!available())
-        return false;
     // 32 microsecs (if immediately available)
     *len = spiRead(NRF24_COMMAND_R_RX_PL_WID);
     uint8_t pipen = (spiReadRegister(NRF24_REG_07_STATUS) & NRF24_RX_P_NO) >> 1;

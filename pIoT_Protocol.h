@@ -31,7 +31,7 @@
 #define BASE_ADDR -2130771712
 
 //Default radio channel
-#define RF_CHANNEL 10
+#define RF_CHANNEL 50
 
 
 /** Configures and starts the radio.

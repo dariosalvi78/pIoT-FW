@@ -64,3 +64,8 @@ Brief API description:
 * `JSONtoBoolean(char* line, char* dataName)` searches for a certain name and converts the value to a boolean
 
 see the examples folders for example sketches.
+
+Examples:
+---------
+
+*SendReceive: a small sketch that makes use only of the nRF24 library. It is indicated for testing the radio modules and for finding the best configuration parameters of the module.
