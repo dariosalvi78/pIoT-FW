@@ -329,8 +329,11 @@ public:
      */
     static boolean getTransmitAddress(uint8_t * addr);
 
-    /** Sets the first len bytes of the address for the given NRF24 receiver pipe.
-     * In case of pipe 2,3,4,5 it only sets the LSB, the rest is taken from pipe 1.
+    /** Sets the address for the given NRF24 receiver pipe.
+	 * Data pipe 0 has a unique 5 byte address.
+	 * Data pipes 1-5 share the four most significant address bytes.
+	 * The LSByte must be unique for all six pipes.
+     * In case of pipe 2,3,4,5 the function only sets the LSB, the rest is taken from pipe 1.
      * @param pipe The index of the pipe to set, from 0 to 5
      * @param address The address for receiving.
      * The size must be the same as the actual one.
@@ -342,7 +345,7 @@ public:
      * @param pipe the pipe number, from 0 to 5
      * @param addr a buffer for the address,
      * the size must be the same as the actual address size
-     * @return an array filled with the address, use getAddressSize to know the length
+     * @return true on success
      */
     static boolean getPipeAddress(uint8_t pipe, uint8_t * addr);
 
@@ -432,16 +435,6 @@ public:
      * @return true on success
      */
     static boolean send(uint8_t* data, uint8_t len, boolean noack = false);
-
-    /** Sends a packet but does not wait after.
-     * Sets the radio to TX mode.
-     * @param data Data bytes to send.
-     * @param len Number of data bytes to set in teh TX buffer. The actual size of the
-     * transmitted data payload is set by setPayloadSize
-     * @param noack Optional parameter if true sends the message NOACK mode.
-     * @return true on success
-     */
-    static void asyncSend(uint8_t* data, uint8_t len, boolean noack = false);
 
     /** Indicates if the chip is in transmit mode and
      * there is a packet currently being transmitted

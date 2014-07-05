@@ -509,7 +509,7 @@ boolean NRF24::powerUpTx()
     return isPoweredUp();
 }
 
-void NRF24::asyncSend(uint8_t* data, uint8_t len, boolean noack)
+boolean NRF24::send(uint8_t* data, uint8_t len, boolean noack)
 {
     powerUpTx(); //set to transmit mode
 	
@@ -523,7 +523,7 @@ void NRF24::asyncSend(uint8_t* data, uint8_t len, boolean noack)
         int len = getAddressSize();
         byte addr[len];
         if(getTransmitAddress(addr))
-            spiBurstWriteRegister(NRF24_REG_0A_RX_ADDR_P0, addr, len);
+			setPipeAddress(0, addr);
     }
 	
     spiBurstWrite(noack ? NRF24_COMMAND_W_TX_PAYLOAD_NOACK : NRF24_COMMAND_W_TX_PAYLOAD, data, len);//send data
@@ -531,12 +531,6 @@ void NRF24::asyncSend(uint8_t* data, uint8_t len, boolean noack)
     //digitalWrite(_chipEnablePin, LOW);
     //delayMicroseconds(10);
     //digitalWrite(_chipEnablePin, HIGH);
-}
-
-
-boolean NRF24::send(uint8_t* data, uint8_t len, boolean noack)
-{
-    asyncSend(data, len, noack);
 
     //Radio will return to Standby II mode after transmission is complete
     //Wait for either the Data Sent or Max ReTries flag, signalling the

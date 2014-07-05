@@ -30,8 +30,6 @@ byte thisAddress[4];
 
 
 boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqPin, long myAdd) {
-    NRF24::configure(chipEnablePin, chipSelectPin, irqPin);
-
     long brdcst = BROADCAST_ADDR;
     broadCastAddress[0] =  brdcst & 0xFF ;
     broadCastAddress[1] = (brdcst >> 8) & 0xFF;
@@ -44,6 +42,7 @@ boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqPin, long myA
     thisAddress[3] = (myAdd >> 24) & 0xFF;
 
     //Init the nrf24
+	NRF24::configure(chipEnablePin, chipSelectPin, irqPin);
     nRF24.init();
     if(!nRF24.setChannel(RF_CHANNEL)) return false;
     //set dynamic payload size
@@ -57,10 +56,10 @@ boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqPin, long myA
     if(!nRF24.setRF(NRF24::NRF24DataRate2Mbps, NRF24::NRF24TransmitPower0dBm)) return false;
     //Configure pipes
 	if(!nRF24.enablePipe(0)) return false;
+	if(!nRF24.enablePipe(1)) return false;	
     if(!nRF24.setPipeAddress(0, broadCastAddress)) return false;
+	if(!nRF24.setPipeAddress(1, thisAddress)) return false;
     if(!nRF24.setAutoAck(0, true)) return false;
-	if(!nRF24.enablePipe(1)) return false;
-    if(!nRF24.setPipeAddress(1, thisAddress)) return false;
     if(!nRF24.setAutoAck(1, true)) return false;
     if(!nRF24.setTXRetries(TX_RETR_DELAY, TX_RETR_NUM)) return false;
     return true;
