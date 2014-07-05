@@ -69,4 +69,8 @@ see the [examples folder](https://github.com/dariosalvi78/pIoT-FW/tree/master/ex
 Examples:
 ---------
 
-*SendReceive: a small sketch that makes use only of the nRF24 library. It is indicated for testing the radio modules and for finding the best configuration parameters of the module.
+* nRF24SendReceive: a small sketch that makes use only of the nRF24 library. It is indicated for testing the radio modules and for finding the best configuration parameters of the module.
+* Base: a sketch to be loaded on the node that acts as a base
+* Sensor: a sketch of a node that acts as a light sensor
+* Actuator: a sketch of a node that acts as an actuator
+
