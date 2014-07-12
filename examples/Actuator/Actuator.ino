@@ -37,7 +37,7 @@ struct helloMessage{
  */
 unsigned int switchMsgType = 101;
 struct switchMessage{
-    boolean status;
+    boolean on;
 };
 
 
@@ -60,8 +60,8 @@ void handleSwitchMessage(boolean broadcast, long sender, unsigned int msgType, b
     if (msgType == switchMsgType){
         Serial.print("Received a switch message, status: ");
         switchMessage pkt = *((switchMessage*)data);
-        digitalWrite(5, pkt.status);
-        Serial.println(pkt.status);
+        digitalWrite(5, pkt.on);
+        Serial.println(pkt.on);
         if(!send(false, BASE_ADDR, switchMsgType, (byte*)&pkt, sizeof(switchMessage))) Serial.println("- Cannot send confirmation message");
     } else{
         Serial.println("Received something that I cannot interpret");

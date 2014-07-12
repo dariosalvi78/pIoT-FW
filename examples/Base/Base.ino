@@ -4,7 +4,7 @@
  * It acts as a bridge between the server and the rest
  * of the nodes.
  * To send a message to the switch actuator try writing
- * { "switch": { "destAddress": 4321, "status": TRUE }}
+ * { "SwitchSet": { "destAddress": 4321, "on": TRUE }}
  * on the serial monitor.
  */
 #include <Arduino.h>
@@ -39,7 +39,7 @@ struct lightMessage{
  */
 unsigned int switchMsgType = 101;
 struct switchMessage{
-    boolean status;
+    boolean on;
 };
 
 
@@ -57,14 +57,14 @@ void setup() {
  * and sends a switch message to the corresponding node.
  */
 void handleJson(char* dataname, char* message){
-    if(strcasecmp(dataname, "switch") == 0){ //use strcasecmp to compare strings ignoring their cases
-        Serial.print("Going to send a switch command to ");
+    if(strcasecmp(dataname, "SwitchSet") == 0){ //use strcasecmp to compare strings ignoring their cases
+        Serial.print("Going to send a switch set command to ");
         long address = JSONtoLong(message, "destAddress");
         Serial.print(address);
         switchMessage sm;
-        Serial.print(" status ");
-        sm.status = JSONtoBoolean(message, "status");
-        Serial.println(sm.status);
+        Serial.print(" on? ");
+        sm.on = JSONtoBoolean(message, "on");
+        Serial.println(sm.on);
         if(!send(false, address, switchMsgType, (byte*) &sm, sizeof(switchMessage)))! Serial.println("Cannot send packet");
     } else{
         Serial.print("Received a messages with incomprehensible dataname \"");
@@ -85,7 +85,7 @@ void handleMessage(boolean broadcast, long sender, unsigned int msgType, byte* d
     Serial.println(sender);
     if(msgType == helloMsgType){
         helloMessage hm = *((helloMessage*) data);
-        Serial.print("{ \"HelloMessage\": { \"sourceAddress\":");
+        Serial.print("{ \"Hello\": { \"sourceAddress\":");
         Serial.print(sender);
         Serial.print(", \"temperature\":");
         Serial.print(hm.internalTemp);
@@ -95,7 +95,7 @@ void handleMessage(boolean broadcast, long sender, unsigned int msgType, byte* d
     }
     else if(msgType == lightMsgType){
         lightMessage lm = *((lightMessage*) data);
-        Serial.print("{ \"LightMessage\": { \"sourceAddress\":");
+        Serial.print("{ \"LightState\": { \"sourceAddress\":");
         Serial.print(sender);
         Serial.print(", \"intensity\":");
         Serial.print(lm.intensity);
@@ -103,10 +103,10 @@ void handleMessage(boolean broadcast, long sender, unsigned int msgType, byte* d
     }
     else if (msgType == switchMsgType){
         switchMessage sm = *((switchMessage*) data);
-        Serial.print("{ \"switch\": { \"sourceAddress\":");
+        Serial.print("{ \"SwitchState\": { \"sourceAddress\":");
         Serial.print(sender);
-        Serial.print(", \"status\":");
-        Serial.print(sm.status);
+        Serial.print(", \"on\":");
+        Serial.print(sm.on);
         Serial.println(" }}");
 
     } else {
