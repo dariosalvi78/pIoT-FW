@@ -28,6 +28,7 @@ unsigned int helloMsgType = 0;
 struct helloMessage{
     float internalTemp;
     float internalVcc;
+    unsigned long operationTime;
 };
 
 /** Definition of a message that contains
@@ -56,6 +57,7 @@ void loop() {
     helloMessage hm;
     hm.internalTemp = getInternalTemperature();
     hm.internalVcc = getInternalVcc();
+    hm.operationTime = (millis()/1000) + getTotalSleepSeconds();
     if(!send(false, BASE_ADDR, helloMsgType, (byte*) &hm, sizeof(helloMessage))) Serial.println("- Cannot send message");
 
 

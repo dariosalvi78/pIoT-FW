@@ -24,6 +24,7 @@ unsigned int helloMsgType = 0;
 struct helloMessage{
     float internalTemp;
     float internalVcc;
+    unsigned long operationTime;
 };
 
 /** Definition of the message that contains
@@ -91,6 +92,8 @@ void handleMessage(boolean broadcast, long sender, unsigned int msgType, byte* d
         Serial.print(hm.internalTemp);
         Serial.print(", \"Vcc\":");
         Serial.print(hm.internalVcc);
+        Serial.print(", \"operationTime\":");
+        Serial.print(hm.operationTime);
         Serial.println(" }}");
     }
     else if(msgType == lightMsgType){
