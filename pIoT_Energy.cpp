@@ -4,6 +4,9 @@
  * Author: Dario Salvi (dariosalvi78 at gmail dot com)
  *
  * Licensed under the GPL license http://www.gnu.org/copyleft/gpl.html
+ *
+ * For an extended guide on power consumption and saving see
+ * http://www.gammon.com.au/forum/?id=11497
  */
 #ifdef __cplusplus
 extern "C"
@@ -91,6 +94,9 @@ void sleepUntil(int seconds, int pinsN, ...){
 
     //make sure we don't get interrupted before we sleep
     noInterrupts ();
+	
+	//power off ADC
+	ADCSRA &= ~(1<<ADEN);
 
     //register pin changes
     if(pinsN >0) for(int i=0; i< pinsN; i++){
@@ -137,7 +143,7 @@ void sleepUntil(int seconds, int pinsN, ...){
         MCUCR |= (1<<BODS) | (1<<BODSE);
         MCUCR &= ~(1<<BODSE);
         #endif
-        sleep_mode();
+        sleep_cpu();  // sleep here
     }
 
     //Here we wake up
@@ -152,6 +158,9 @@ void sleepUntil(int seconds, int pinsN, ...){
             PCICR &= ~(1 << pinToIE(pins[i]));
         }
     }
+	
+	//restore ADC
+	ADCSRA |= (1<<ADEN);  // adc on
 
     power_all_enable();
 }
