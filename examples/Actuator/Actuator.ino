@@ -20,36 +20,40 @@ long nodeAddress = 4321;
  */
 int helloPeriod = 10;
 
+/** Counter of the messages that could not be sent.
+ */
+unsigned int unsentMsgs;
 
 /** Definition of a "hello message"
  * that contains internal values of the
  * node. Hello message is recommended to
  * be used on all nodes.
  */
-unsigned int helloMsgType = 0;
-struct helloMessage{
-    float internalTemp;
-    float internalVcc;
-    unsigned long operationTime;
+unsigned int helloMsgType = 1;
+struct helloMessage {
+  float internalTemp;
+  float internalVcc;
+  unsigned long operationTime;
+  unsigned int unsentMsgs;
 };
 
 /** Definition of the message that contains
  * the information about the status of a switch.
  */
 unsigned int switchMsgType = 101;
-struct switchMessage{
-    boolean on;
+struct switchMessage {
+  boolean on;
 };
 
 
 void setup() {
-    Serial.begin(57600);
+  Serial.begin(57600);
 
-    long myAddress = nodeAddress;
+  long myAddress = nodeAddress;
 
-    Serial.println("pIoT example, acting as Actuator");
+  Serial.println("pIoT example, acting as Actuator");
 
-    if(!startRadio(9, 10, 12, myAddress)) Serial.println("Cannot start radio");
+  if (!startRadio(9, 10, 12, myAddress)) Serial.println("Cannot start radio");
 }
 
 /** Handles incoming messages from the network.
@@ -57,30 +61,38 @@ void setup() {
  * accordingly and sends a status message back for
  * confirmation.
  */
-void handleSwitchMessage(boolean broadcast, long sender, unsigned int msgType, byte* data, int len){
-    if (msgType == switchMsgType){
-        Serial.print("Received a switch message, status: ");
-        switchMessage pkt = *((switchMessage*)data);
-        digitalWrite(5, pkt.on);
-        Serial.println(pkt.on);
-        if(!send(false, BASE_ADDR, switchMsgType, (byte*)&pkt, sizeof(switchMessage))) Serial.println("- Cannot send confirmation message");
-    } else{
-        Serial.println("Received something that I cannot interpret");
+void handleSwitchMessage(boolean broadcast, long sender, unsigned int msgType, byte* data, int len) {
+  if ((msgType == switchMsgType) &&
+      (len == sizeof(switchMessage))) {
+    Serial.print("Received a switch message, status: ");
+    switchMessage pkt = *((switchMessage*)data);
+    digitalWrite(5, pkt.on);
+    Serial.println(pkt.on);
+    if (!send(false, BASE_ADDR, switchMsgType, (byte*)&pkt, sizeof(switchMessage))) {
+      Serial.println("- Cannot send confirmation message");
+      unsentMsgs ++;
     }
+  } else {
+    Serial.println("Received something that I cannot interpret");
+  }
 }
 
 void loop() {
-    //The loop sends an hello message every now and then
-    //and just waits for incoming messages
-    Serial.println("Sending hello");
-    helloMessage hm;
-    hm.internalTemp = getInternalTemperature();
-    hm.internalVcc = getInternalVcc();
-    hm.operationTime = (millis()/1000) + getTotalSleepSeconds();
-    if(!send(false, BASE_ADDR, helloMsgType, (byte*) &hm, sizeof(helloMessage))) Serial.println("- Cannot send hello message");
+  //The loop sends an hello message every now and then
+  //and just waits for incoming messages
+  Serial.println("Sending hello");
+  helloMessage hm;
+  hm.internalTemp = getInternalTemperature();
+  hm.internalVcc = getInternalVcc();
+  hm.operationTime = (millis() / 1000) + getTotalSleepSeconds();
+  hm.unsentMsgs = unsentMsgs;
+  if (!send(false, BASE_ADDR, helloMsgType, (byte*) &hm, sizeof(helloMessage))) {
+    Serial.println("- Cannot send hello message");
+    unsentMsgs++;
+  }
 
-    Serial.println("Waiting for a message");
-    receive(helloPeriod* 1000, handleSwitchMessage);
+  Serial.println("Waiting for a message");
+  receive(helloPeriod * 1000, handleSwitchMessage);
 }
 
 

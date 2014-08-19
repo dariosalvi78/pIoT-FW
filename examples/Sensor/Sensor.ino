@@ -19,58 +19,69 @@ long nodeAddress = 1234;
  */
 int sleepTime = 5;
 
+/** Counter of the messages that could not be sent.
+ */
+unsigned int unsentMsgs;
+
 /** Definition of a "hello message"
  * that contains internal values of the
  * node. Hello message is recommended to
  * be used on all nodes.
  */
-unsigned int helloMsgType = 0;
-struct helloMessage{
-    float internalTemp;
-    float internalVcc;
-    unsigned long operationTime;
+unsigned int helloMsgType = 1;
+struct helloMessage {
+  float internalTemp;
+  float internalVcc;
+  unsigned long operationTime;
+  unsigned int unsentMsgs;
 };
 
 /** Definition of a message that contains
  * the value of measured light intensity.
  */
 unsigned int lightMsgType = 100;
-struct lightMessage{
-    int intensity;
+struct lightMessage {
+  int intensity;
 };
 
 
 void setup() {
-    Serial.begin(57600);
-    Serial.println("pIoT example, acting as Sensor");
+  Serial.begin(57600);
+  Serial.println("pIoT example, acting as Sensor");
 
-    if(!startRadio(9, 10, 12, nodeAddress)) Serial.println("Cannot start radio");
+  if (!startRadio(9, 10, 12, nodeAddress)) Serial.println("Cannot start radio");
 }
 
 
 void loop() {
-    //The loop sends an hello message,
-    //then reads an analog value and sends it as light
-    //intensity in a light message, then goes to sleep for
-    //a certain time
-    Serial.println("Sending hello");
-    helloMessage hm;
-    hm.internalTemp = getInternalTemperature();
-    hm.internalVcc = getInternalVcc();
-    hm.operationTime = (millis()/1000) + getTotalSleepSeconds();
-    if(!send(false, BASE_ADDR, helloMsgType, (byte*) &hm, sizeof(helloMessage))) Serial.println("- Cannot send message");
+  //The loop sends an hello message,
+  //then reads an analog value and sends it as light
+  //intensity in a light message, then goes to sleep for
+  //a certain time
+  Serial.println("Sending hello");
+  helloMessage hm;
+  hm.internalTemp = getInternalTemperature();
+  hm.internalVcc = getInternalVcc();
+  hm.operationTime = (millis() / 1000) + getTotalSleepSeconds();
+  hm.unsentMsgs = unsentMsgs;
+  if (!send(false, BASE_ADDR, helloMsgType, (byte*) &hm, sizeof(helloMessage))) {
+    Serial.println("- Cannot send message");
+    unsentMsgs++;
+  }
 
+  Serial.print("Sending light intensity ");
+  int intensity = analogRead(0);
+  Serial.println(intensity);
+  lightMessage lm;
+  lm.intensity = intensity;
+  if (!send(false, BASE_ADDR, lightMsgType, (byte*) &lm, sizeof(lightMessage))) {
+    Serial.println("- Cannot send message");
+    unsentMsgs++;
+  }
 
-    Serial.print("Sending light intensity ");
-    int intensity = analogRead(0);
-    Serial.println(intensity);
-    lightMessage lm;
-    lm.intensity = intensity;
-    if(!send(false, BASE_ADDR, lightMsgType, (byte*) &lm, sizeof(lightMessage))) Serial.println("- Cannot send message");
-
-    Serial.println("going to sleep for some seconds...");
-    delay(100); //this delay is to let the serial send the debug message
-    stopRadio(); //you have to shut down the radio explicitly
-    sleepUntil(sleepTime, 0);
+  Serial.println("going to sleep for some seconds...");
+  delay(100); //this delay is to let the serial send the debug message
+  stopRadio(); //you have to shut down the radio explicitly
+  sleepUntil(sleepTime, 0);
 }
 
