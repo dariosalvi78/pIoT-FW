@@ -49,7 +49,9 @@ void setup() {
   Serial.begin(57600);
   Serial.println("pIoT example, acting as Base");
 
-  if (!startRadio(9, 10, 12, BASE_ADDR)) Serial.println("Cannot start radio");
+  if (!startRadio(9, 10, 12, BASE_ADDR)) {
+    Serial.println("{\"Error\": { \"severity\": 2, \"message\": \"Base cannot start radio\"}}");
+  }
 }
 
 /** Function that manages json messages coming to the base from
@@ -67,11 +69,15 @@ void handleJson(char* dataname, char* message) {
     Serial.print(" on? ");
     sm.on = JSONtoBoolean(message, "on");
     Serial.println(sm.on);
-    if (!send(false, address, switchMsgType, (byte*) &sm, sizeof(switchMessage)))! Serial.println("Cannot send packet");
+    if (!send(false, address, switchMsgType, (byte*) &sm, sizeof(switchMessage))) {
+      Serial.print("{\"Error\": { \"severity\": 1, \"message\": \"Base cannot send switch message to ");
+      Serial.print(address);
+      Serial.println(" \"}}");
+    }
   } else {
-    Serial.print("Received a messages with incomprehensible dataname \"");
+    Serial.println("{\"Error\": { \"severity\": 1, \"message\": \"Base Received a JSON messages with incomprehensible dataname ");
     Serial.print(dataname);
-    Serial.println("\"");
+    Serial.println(" \"}}");
   }
 }
 
@@ -119,8 +125,9 @@ void handleMessage(boolean broadcast, long sender, unsigned int msgType, byte* d
     Serial.println(" }}");
 
   } else {
-    Serial.print("- Cannot interpret message type ");
-    Serial.println(msgType);
+    Serial.println("{\"Error\": { \"severity\": 1, \"message\": \"Base cannot interpret message type ");
+    Serial.print(msgType);
+    Serial.println(" \"}}");
   }
 }
 
@@ -133,5 +140,4 @@ void loop() {
   readSerial(0, handleJson);
   receive(0, handleMessage);
 }
-
 
