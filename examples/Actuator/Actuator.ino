@@ -20,10 +20,6 @@ long nodeAddress = 4321;
  */
 int helloPeriod = 10;
 
-/** Counter of the messages that could not be sent.
- */
-unsigned int unsentMsgs;
-
 /** Definition of a "hello message"
  * that contains internal values of the
  * node. Hello message is recommended to
@@ -34,7 +30,9 @@ struct helloMessage {
   float internalTemp;
   float internalVcc;
   unsigned long operationTime;
-  unsigned int unsentMsgs;
+  unsigned long sentMsgs;
+  unsigned long unsentMsgs;
+  unsigned long receivedMsgs;
 };
 
 /** Definition of the message that contains
@@ -70,7 +68,6 @@ void handleSwitchMessage(boolean broadcast, long sender, unsigned int msgType, b
     Serial.println(pkt.on);
     if (!send(false, BASE_ADDR, switchMsgType, (byte*)&pkt, sizeof(switchMessage))) {
       Serial.println("- Cannot send confirmation message");
-      unsentMsgs ++;
     }
   } else {
     Serial.println("Received something that I cannot interpret");
@@ -85,10 +82,11 @@ void loop() {
   hm.internalTemp = getInternalTemperature();
   hm.internalVcc = getInternalVcc();
   hm.operationTime = (millis() / 1000) + getTotalSleepSeconds();
-  hm.unsentMsgs = unsentMsgs;
+  hm.sentMsgs = getSentCounter();
+  hm.unsentMsgs = getUnsentCounter();
+  hm.receivedMsgs = getReceivedCounter();
   if (!send(false, BASE_ADDR, helloMsgType, (byte*) &hm, sizeof(helloMessage))) {
     Serial.println("- Cannot send hello message");
-    unsentMsgs++;
   }
 
   Serial.println("Waiting for a message");

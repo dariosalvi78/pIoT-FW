@@ -19,10 +19,6 @@ long nodeAddress = 1234;
  */
 int sleepTime = 5;
 
-/** Counter of the messages that could not be sent.
- */
-unsigned int unsentMsgs;
-
 /** Definition of a "hello message"
  * that contains internal values of the
  * node. Hello message is recommended to
@@ -33,7 +29,9 @@ struct helloMessage {
   float internalTemp;
   float internalVcc;
   unsigned long operationTime;
-  unsigned int unsentMsgs;
+  unsigned long sentMsgs;
+  unsigned long unsentMsgs;
+  unsigned long receivedMsgs;
 };
 
 /** Definition of a message that contains
@@ -63,10 +61,11 @@ void loop() {
   hm.internalTemp = getInternalTemperature();
   hm.internalVcc = getInternalVcc();
   hm.operationTime = (millis() / 1000) + getTotalSleepSeconds();
-  hm.unsentMsgs = unsentMsgs;
+  hm.sentMsgs = getSentCounter();
+  hm.unsentMsgs = getUnsentCounter();
+  hm.receivedMsgs = getReceivedCounter();
   if (!send(false, BASE_ADDR, helloMsgType, (byte*) &hm, sizeof(helloMessage))) {
     Serial.println("- Cannot send message");
-    unsentMsgs++;
   }
 
   Serial.print("Sending light intensity ");
@@ -76,7 +75,6 @@ void loop() {
   lm.intensity = intensity;
   if (!send(false, BASE_ADDR, lightMsgType, (byte*) &lm, sizeof(lightMessage))) {
     Serial.println("- Cannot send message");
-    unsentMsgs++;
   }
 
   Serial.println("going to sleep for some seconds...");

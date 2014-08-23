@@ -52,7 +52,7 @@ boolean stopRadio();
  * @param broadcast true if broadcast
  * @param destination address of the destination
  * @param msgType type of message
- * @param len length of the payload
+ * @param len length of the payload in bytes, it cannot exceed 26 (!)
  * @return true if sent
  */
 boolean send(boolean broadcast, long destination, unsigned int msgType, byte* data, int len);
@@ -68,5 +68,16 @@ boolean send(boolean broadcast, long destination, unsigned int msgType, byte* da
  */
 boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender, unsigned int msgType, byte* data, int len));
 
+/** Returns the number of sent, and received, packets since the node was started.
+ */
+unsigned long getSentCounter();
+
+/** Returns the number of packets that were sent but not received, since the node was started.
+ */
+unsigned long getUnsentCounter();
+
+/** Returns the number of received packets since the node was started.
+ */
+unsigned long getReceivedCounter();
 
 #endif // pIoT_PROTOCOL_H_INCLUDED

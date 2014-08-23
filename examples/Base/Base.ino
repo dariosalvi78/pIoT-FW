@@ -25,8 +25,11 @@ struct helloMessage {
   float internalTemp;
   float internalVcc;
   unsigned long operationTime;
-  unsigned int unsentMsgs;
+  unsigned long sentMsgs;
+  unsigned long unsentMsgs;
+  unsigned long receivedMsgs;
 };
+//Note: in total this message takes 24 bytes, almost the max supported by the library (26)
 
 /** Definition of the message that contains
  * the value of measured light intensity.
@@ -102,8 +105,12 @@ void handleMessage(boolean broadcast, long sender, unsigned int msgType, byte* d
     Serial.print(hm.internalVcc);
     Serial.print(", \"operationTime\":");
     Serial.print(hm.operationTime);
+    Serial.print(", \"sentMessages\":");
+    Serial.print(hm.sentMsgs);
     Serial.print(", \"unsentMessages\":");
     Serial.print(hm.unsentMsgs);
+    Serial.print(", \"receivedMessages\":");
+    Serial.print(hm.receivedMsgs);
     Serial.println(" }}");
   }
   else if ((msgType == lightMsgType) &&
