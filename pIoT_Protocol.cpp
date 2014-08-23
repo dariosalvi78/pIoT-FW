@@ -20,8 +20,8 @@ extern "C"
 #include <pIoT_Protocol.h>
 
 //Configure retries, for strong reliability use 3 as delay and >10 as retries number
-#define TX_RETR_DELAY 2
-#define TX_RETR_NUM 5
+#define TX_RETR_DELAY 3
+#define TX_RETR_NUM 10
 
 //Addresses:
 byte broadCastAddress[4];
