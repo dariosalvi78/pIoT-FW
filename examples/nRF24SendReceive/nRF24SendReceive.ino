@@ -21,7 +21,7 @@ boolean autoAcks = true;
 //delays between retransmissions, 0 to 15
 byte delays = 2;
 //retransmissions, 0 to 15
-byte retries = 3;
+byte retries = 5;
 //data rate: NRF24DataRate1Mbps, NRF24DataRate2Mbps, NRF24DataRate250kbps
 NRF24::NRF24DataRate datarate = NRF24::NRF24DataRate2Mbps;
 //transmit power: NRF24TransmitPowerm18dBm, 12dBm, 6dBm, 0dbm
@@ -75,17 +75,23 @@ void loop() {
   delay(1000);
 #else
   nRF24.waitAvailable(); //waits forever, until a packet is received
-  counter ++;
-  Serial.print("Received packet n ");
-  Serial.print(counter);
   byte buff[50];
   byte len;
   if (nRF24.recv(&pipe, buff, &len)) {
+    counter ++;
+    Serial.print("Received packet n ");
+    Serial.print(counter);
+    if(len !=2){
+      Serial.println(" -- truncated packet!");
+      return;
+    }
     Serial.print(" of ");
     unsigned int recounter = buff[0] + (buff[1] << 8);
     Serial.print(recounter);
     Serial.print(", lost ");
     Serial.println(recounter - counter);
+  } else {
+    Serial.println("Wait exited, but no packet available");
   }
 #endif
 
