@@ -152,12 +152,17 @@ void sleepUntil(int seconds, int pinsN, ...){
     //deactivate watchdog
     wdt_disable();
 
+	//clear pins interrupts
+	PCIFR &= ~(bit (PCIF0));
+	PCIFR &= ~(bit (PCIF1));
+	PCIFR &= ~(bit (PCIF2));
     //deactivate pins
     if(pinsN >0) for(int i=0; i< pinsN; i++){
         if((pins[i]>=0) && (pins[i]<=19)){
             PCICR &= ~(1 << pinToIE(pins[i]));
         }
     }
+	
 	
 	//restore ADC
 	ADCSRA |= (1<<ADEN);  // adc on

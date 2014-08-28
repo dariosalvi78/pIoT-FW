@@ -8,7 +8,7 @@
 #include <nRF24.h>
 
 //Comment this to act as a receiver
-#define SENDER
+//#define SENDER
 
 //Used pipe, chhose 0 to 5
 byte pipe = 0;
@@ -27,7 +27,7 @@ NRF24::NRF24DataRate datarate = NRF24::NRF24DataRate2Mbps;
 //transmit power: NRF24TransmitPowerm18dBm, 12dBm, 6dBm, 0dbm
 NRF24::NRF24TransmitPower power = NRF24::NRF24TransmitPower0dBm;
 //test IRQs? just prints a line when RX IRQ is detected
-boolean testIRQ = true;
+boolean testIRQ = false;
 
 unsigned int counter = 0;
 unsigned int lost = 0;
@@ -107,3 +107,4 @@ void loop() {
 #endif
 
 }
+

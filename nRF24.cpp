@@ -58,7 +58,12 @@ boolean NRF24::powerUpIdle(){
 		
 		// start the SPI library:
 		SPI.begin();
+		
+		//Enables dynamic payloads and dynamic acks always
+		spiWriteRegister(NRF24_REG_1D_FEATURE, NRF24_EN_DPL | NRF24_EN_DYN_ACK);
 	}
+	//Clear interrupts here
+    spiWriteRegister(NRF24_REG_07_STATUS, NRF24_RX_DR | NRF24_TX_DS | NRF24_MAX_RT);
 
 	uint8_t reg = spiReadRegister(NRF24_REG_00_CONFIG);
     reg = reg &  ~NRF24_PWR_UP; //set the power up bit to 0
