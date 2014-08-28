@@ -43,11 +43,6 @@
 #define NRF24_MAX_MESSAGE_LEN 32
 #endif
 
-// Keep track of the mode the NRF24 is in
-#define NRF24_MODE_IDLE         0
-#define NRF24_MODE_RX           1
-#define NRF24_MODE_TX           2
-
 // These values we set for FIFO thresholds are actually the same as the POR values
 #define NRF24_TXFFAEM_THRESHOLD 4
 #define NRF24_RXFFAFULL_THRESHOLD 55
@@ -179,6 +174,16 @@
 class NRF24 {
 public:
 
+	/** Defines power status
+     */
+    typedef enum
+    {
+        NRF24PowerDown = 0,   /** powered down */
+		NRF24PowerUpIdle,	  /** powered up but idle **/
+        NRF24PowerUpRX,       /** powered up and receiving **/
+        NRF24PowerUpTX        /** powered up and transmitting */
+    } NRF24PowerStatus;
+
     /** Defines convenient values for setting data rates in setRF()
      */
     typedef enum
@@ -218,30 +223,39 @@ public:
     } NRF24AddressSize;
 
     /** Configures the pins used for chip enable and chip select.
-     * init() must be called to initialise the interface and the radio module
+     * powerUpIdle() must be called to initialise the interface and the radio module
      * @param chipEnablePin the Arduino pin to use to enable the chip for transmit/receive
      * @param chipSelectPin the Arduino pin number of the output to use to select the NRF24 before
-     * @param IRQpin the pin where the IRQ is received
      * accessing it
      */
-    static void configure(uint8_t chipEnablePin = 9, uint8_t chipSelectPin = 10, uint8_t IRQpin = 2);
-
-    /** Initialises this instance and the radio module connected to it.
-     * The following steps are taken:
-     * - Set the chip enable and chip select pins to output LOW, HIGH respectively.
-     * - Initialise the SPI output pins
-     * - Initialise the SPI interface library to 8MHz (all SPI.setClockDivider()
-     * after init() to lower the SPI frequency).
-     * - Flush the receiver and transmitter buffers
-     * - Power down the chip
-     * @return  true if everything was successful
+    static void configure(uint8_t chipEnablePin = 9, uint8_t chipSelectPin = 10);
+	
+	/** Powers the device up in idle mode.
+	 * @return true if really powered up
+	 */
+	static boolean powerUpIdle();
+	
+	/** Sets the radio in power down mode.
+     * Sets chip enable to LOW.
+     * @return true on success
      */
-    static boolean init();
+    static boolean powerDown();
 
-    /** Tells if the chip is powered up or sleeping.
-     * @return true if powered up
+    /** Sets the radio in RX mode.
+     * Sets chip enable to HIGH to enable the chip in RX mode.
+     * @return true on success
      */
-    static boolean isPoweredUp();
+    static boolean powerUpRx();
+
+    /** Sets the radio in TX mode.
+     * Pulses the chip enable LOW then HIGH to enable the chip in TX mode.
+     * @return true on success
+     */
+    static boolean powerUpTx();
+
+    /** Tells what the power status of the chip is
+     */
+    static NRF24PowerStatus getPowerStatus();
 
     /** Sets the transmit and receive channel number.
      * The frequency used is (2400 + channel) MHz
@@ -406,24 +420,25 @@ public:
      * @return returns the NRF24TransmitPower enum
      */
     static NRF24TransmitPower getTransmitPower();
-
-    /** Sets the radio in power down mode.
-     * Sets chip enable to LOW.
-     * @return true on success
-     */
-    static boolean powerDown();
-
-    /** Sets the radio in RX mode.
-     * Sets chip enable to HIGH to enable the chip in RX mode.
-     * @return true on success
-     */
-    static boolean powerUpRx();
-
-    /** Sets the radio in TX mode.
-     * Pulses the chip enable LOW then HIGH to enable the chip in TX mode.
-     * @return true on success
-     */
-    static boolean powerUpTx();
+	
+	/** Says if the IRQ mask is set on RX
+	 */
+	static boolean getIRQMaskRX();
+	
+	/** Says if the IRQ mask is set on TX
+	 */
+	static boolean getIRQMaskTX();
+	
+	/** Says if the IRQ mask is set on RT
+	 */
+	static boolean getIRQMaskRT();
+	
+	/** Sets the IRQ mask
+	 * @param mask_RX masks the receive
+	 * @param mask_TX masks the data sent
+	 * @param mask_RT masks the max retries
+	 */
+	static boolean setIRQMask(boolean mask_RX, boolean mask_TX, boolean mask_MAX_RT);
 
     /** Sends data to the address set by setTransmitAddress(). Blocks until the current message (if any)
      * has been transmitted.
@@ -475,39 +490,19 @@ public:
      */
     static boolean recv(uint8_t* pipe, uint8_t* buf, uint8_t* len);
 
-    /** Sets a handler for received packets on a certain pipe.
-     * You need to call enableISR first.
-     * @param h is the handler, a function that has (uint8_t * pkt, uint8_t len) as arguments
-     * pkt is where the packet is provided and len the length of the packet
-     * @param pipe is the pipe number where to register
-     */
-    static void setReceivedPacketHandler(uint8_t pipe, void (*h)(uint8_t * pkt, uint8_t len));
-
-    /** Enables asyncrhonous receive with IRQ.
-     * Indicates the pin where the IRQ is connected to,
-     * on ATmega 328p it can D2 or D3
-     */
-    static void enableReceiveISR();
-
     /** Prints the value of all chip registers
      * for debugging purposes
      * @return true on success
      */
     static void printRegisters();
 
-
-    /** Handles the IRQ.
-     * Shouldn't be of any use outside of this library.
-     */
-    static void handleIRQ();
-
 protected:
 
 private:
     static uint8_t _chipEnablePin;
     static uint8_t _chipSelectPin;
-    static uint8_t _IRQPin;
     static uint8_t * pipe0Address;
+	static NRF24PowerStatus powerstatus;
 
     /** Handlers of received packet, one per pipe.
      */

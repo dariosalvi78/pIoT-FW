@@ -39,8 +39,8 @@ void setup() {
   Serial.println("acting as receiver");
 #endif
 
-  nRF24.configure(9, 10, 12);
-  Serial.print(nRF24.init());
+  nRF24.configure(9, 10);
+  Serial.print(nRF24.powerUpIdle());
   Serial.print(nRF24.setChannel(rfchannel));
   Serial.print(nRF24.setPayloadSize(pipe, 0));
   Serial.print(nRF24.setAddressSize(NRF24::NRF24AddressSize4Bytes));

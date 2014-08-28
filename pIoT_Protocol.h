@@ -41,7 +41,7 @@
  * @param myAddress the address of this node, expressed as a long (from -2,147,483,648 to 2,147,483,647)
  * @return true on success
  */
-boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqpin, long myaddress);
+boolean startRadio(byte chipEnablePin, byte chipSelectPin, long myaddress);
 
 /** Shuts the radio module down.
  * To restart it you don't need to call startRadio() explicitly.

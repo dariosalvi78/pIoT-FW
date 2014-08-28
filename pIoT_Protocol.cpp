@@ -32,7 +32,7 @@ unsigned long sent;
 unsigned long unsent;
 unsigned long received;
 
-boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqPin, long myAdd) {
+boolean startRadio(byte chipEnablePin, byte chipSelectPin, long myAdd) {
     long brdcst = BROADCAST_ADDR;
     broadCastAddress[0] =  brdcst & 0xFF ;
     broadCastAddress[1] = (brdcst >> 8) & 0xFF;
@@ -45,8 +45,8 @@ boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte irqPin, long myA
     thisAddress[3] = (myAdd >> 24) & 0xFF;
 
     //Init the nrf24
-	NRF24::configure(chipEnablePin, chipSelectPin, irqPin);
-    nRF24.init();
+	nRF24.configure(chipEnablePin, chipSelectPin);
+    nRF24.powerUpIdle();
     if(!nRF24.setChannel(RF_CHANNEL)) return false;
     //set dynamic payload size
     if(!nRF24.setPayloadSize(0, 0)) return false;
@@ -74,6 +74,8 @@ boolean stopRadio(){
 
 boolean send(boolean broadcast, long destination, unsigned int msgType, byte* data, int len){
 	if(len > 26) return false;
+	
+	if(!nRF24.powerUpTx()) return false;
 
     if(broadcast){
         if(!nRF24.setTransmitAddress(broadCastAddress)) return false;
@@ -108,7 +110,15 @@ boolean send(boolean broadcast, long destination, unsigned int msgType, byte* da
 }
 
 boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender, unsigned int msgType, byte* data, int len)){
-    boolean broadcast;
+    
+	if(!nRF24.powerUpRx())
+		return false;
+	
+	if(timeoutMS >0){
+		nRF24.waitAvailableTimeout(timeoutMS);
+	} 
+    
+	boolean broadcast;
     long sender;
     unsigned int msgType;
     int len;
@@ -116,12 +126,6 @@ boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender
     byte totlen;
     byte pipe;
 	
-	if(timeoutMS <=0){
-		if(!nRF24.powerUpRx())
-			return false;
-	}
-	else nRF24.waitAvailableTimeout(timeoutMS);
-    
 	if(nRF24.recv(&pipe, buffer, &totlen)){
         broadcast = (pipe == BROADCAST_PIPE);
         sender = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
@@ -141,7 +145,6 @@ boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender
 unsigned long getSentCounter(){
 	return sent;
 }
-
 
 unsigned long getUnsentCounter(){
 	return unsent;
