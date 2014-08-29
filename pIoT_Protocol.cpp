@@ -28,9 +28,9 @@ byte broadCastAddress[4];
 byte thisAddress[4];
 
 //Counters
-unsigned long sent;
-unsigned long unsent;
-unsigned long received;
+unsigned long sentCounter;
+unsigned long unsentCounter;
+unsigned long receivedCounter;
 
 boolean startRadio(byte chipEnablePin, byte chipSelectPin, long myAdd) {
     long brdcst = BROADCAST_ADDR;
@@ -101,12 +101,12 @@ boolean send(boolean broadcast, long destination, unsigned int msgType, byte* da
     for(int i=0; i<len; i++){
         pkt[i+6] = data[i];
     }
-    boolean sent = nRF24.send(pkt, totlen, broadcast);
+    boolean justsent = nRF24.send(pkt, totlen, broadcast);
 	
-	if(sent) sent++;
-	else unsent ++;
+	if(justsent) sentCounter++;
+	else unsentCounter ++;
 	
-	return sent;
+	return justsent;
 }
 
 boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender, unsigned int msgType, byte* data, int len)){
@@ -135,7 +135,7 @@ boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender
         for(int i=0; i<len; i++)
             data[i] = buffer[i+6];
 		
-		received ++;
+		receivedCounter ++;
         f(broadcast,sender, msgType, data, len);
         return true;
        }
@@ -143,13 +143,13 @@ boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender
 }
 
 unsigned long getSentCounter(){
-	return sent;
+	return sentCounter;
 }
 
 unsigned long getUnsentCounter(){
-	return unsent;
+	return unsentCounter;
 }
 
 unsigned long getReceivedCounter(){
-	return received;
+	return receivedCounter;
 }

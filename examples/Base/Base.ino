@@ -101,7 +101,7 @@ void handleMessage(boolean broadcast, long sender, unsigned int msgType, byte* d
     Serial.print(sender);
     Serial.print(", \"temperature\":");
     Serial.print(hm.internalTemp);
-    Serial.print(", \"Vcc\":");
+    Serial.print(", \"vcc\":");
     Serial.print(hm.internalVcc);
     Serial.print(", \"operationTime\":");
     Serial.print(hm.operationTime);
@@ -128,7 +128,7 @@ void handleMessage(boolean broadcast, long sender, unsigned int msgType, byte* d
     Serial.print("{ \"SwitchState\": { \"sourceAddress\":");
     Serial.print(sender);
     Serial.print(", \"on\":");
-    Serial.print(sm.on);
+    if(sm.on) Serial.print("TRUE"); else Serial.print("FALSE"); 
     Serial.println(" }}");
 
   } else {
