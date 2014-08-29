@@ -20,6 +20,16 @@ long nodeAddress = 4321;
  */
 int helloPeriod = 10;
 
+/** The last time an hello message was sent.
+ */
+unsigned long lastHelloSent = 0;
+
+/** If true puts the MCU in sleep mode.
+ * This allows saving some power, but the radio
+ * module will be kept on receving.
+ */
+boolean sleep = true;
+
 /** Definition of a "hello message"
  * that contains internal values of the
  * node. Hello message is recommended to
@@ -47,15 +57,13 @@ struct switchMessage {
 void setup() {
   Serial.begin(57600);
 
-  long myAddress = nodeAddress;
-
   Serial.println("pIoT example, acting as Actuator");
 
-  if (!startRadio(9, 10, myAddress)) Serial.println("Cannot start radio");
+  if (!startRadio(9, 10, nodeAddress)) Serial.println("Cannot start radio");
 }
 
 /** Handles incoming messages from the network.
- * Particularly parses the switch messages, actuates
+ * Parses the switch messages, actuates
  * accordingly and sends a status message back for
  * confirmation.
  */
@@ -75,22 +83,44 @@ void handleSwitchMessage(boolean broadcast, long sender, unsigned int msgType, b
 }
 
 void loop() {
-  //The loop sends an hello message every now and then
-  //and just waits for incoming messages
-  Serial.println("Sending hello");
-  helloMessage hm;
-  hm.internalTemp = getInternalTemperature();
-  hm.internalVcc = getInternalVcc();
-  hm.operationTime = (millis() / 1000) + getTotalSleepSeconds();
-  hm.sentMsgs = getSentCounter();
-  hm.unsentMsgs = getUnsentCounter();
-  hm.receivedMsgs = getReceivedCounter();
-  if (!send(false, BASE_ADDR, helloMsgType, (byte*) &hm, sizeof(helloMessage))) {
-    Serial.println("- Cannot send hello message");
+  //The loop sends a Hello message every helloPeriod secs
+  //and waits for incoming switch messages
+
+  //seconds passed since start
+  unsigned long time = (millis() / 1000) + getTotalSleepSeconds();
+
+  if ((time - lastHelloSent) > helloPeriod) {
+    //Time to send a hello message
+    Serial.println("Sending hello");
+    helloMessage hm;
+    hm.internalTemp = getInternalTemperature();
+    hm.internalVcc = getInternalVcc();
+    hm.operationTime = time;
+    hm.sentMsgs = getSentCounter();
+    hm.unsentMsgs = getUnsentCounter();
+    hm.receivedMsgs = getReceivedCounter();
+    if (!send(false, BASE_ADDR, helloMsgType, (byte*) &hm, sizeof(helloMessage))) {
+      Serial.println("- Cannot send hello message");
+    }
+    lastHelloSent = time;
   }
 
-  Serial.println("Waiting for a message");
-  receive(helloPeriod * 1000, handleSwitchMessage);
+  if (sleep) {
+    //leave the radio in receive mode before going to sleep
+    receive(0, handleSwitchMessage);
+
+    Serial.println("Going to sleep...");
+    delay(50); //this delay it's only for allowing the serial complete the message
+    
+    sleepUntil(helloPeriod, 1, 2); //2 is the used IRQ pin
+
+    //after the sleep a message may have just come, handle it
+    receive(0, handleSwitchMessage);
+  }
+  else {
+    //just wait until a message comes or there's a timeout
+    receive(helloPeriod, handleSwitchMessage);
+  }
 }
 
 
