@@ -99,18 +99,24 @@ void sleepUntil(int seconds, int pinsN, ...){
 	ADCSRA &= ~(1<<ADEN);
 
     //register pin changes
-    if(pinsN >0) for(int i=0; i< pinsN; i++){
-        //set pin mask
-        if((pins[i]>=0) && (pins[i]<=19)){//pin is considered only if >=0 and <=19
-            if(pins[i] <=7)
-                PCMSK2 |= (1 << pinToInt(pins[i]));
-            else if(pins[i] >=8 && pins[i] <=13)
-                PCMSK0 |= (1 << pinToInt(pins[i]));
-            else PCMSK1 |= (1 << pinToInt(pins[i]));
-            //Register the pin change interrupt
-            PCICR |= (1 << pinToIE(pins[i]));
-        }
-    }
+    if(pinsN >0){
+		//clear pins interrupts
+		PCIFR &= ~(bit (PCIF0));
+		PCIFR &= ~(bit (PCIF1));
+		PCIFR &= ~(bit (PCIF2));
+		for(int i=0; i< pinsN; i++){
+			//set pin mask
+			if((pins[i]>=0) && (pins[i]<=19)){//pin is considered only if >=0 and <=19
+				if(pins[i] <=7)
+					PCMSK2 |= (1 << pinToInt(pins[i]));
+				else if(pins[i] >=8 && pins[i] <=13)
+					PCMSK0 |= (1 << pinToInt(pins[i]));
+				else PCMSK1 |= (1 << pinToInt(pins[i]));
+				//Register the pin change interrupt
+				PCICR |= (1 << pinToIE(pins[i]));
+			}
+		}
+	}
 
     //Activate the watchdog
     toWaitSeconds = seconds;
@@ -152,10 +158,6 @@ void sleepUntil(int seconds, int pinsN, ...){
     //deactivate watchdog
     wdt_disable();
 
-	//clear pins interrupts
-	PCIFR &= ~(bit (PCIF0));
-	PCIFR &= ~(bit (PCIF1));
-	PCIFR &= ~(bit (PCIF2));
     //deactivate pins
     if(pinsN >0) for(int i=0; i< pinsN; i++){
         if((pins[i]>=0) && (pins[i]<=19)){

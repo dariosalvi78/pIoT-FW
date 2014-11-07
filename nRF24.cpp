@@ -81,7 +81,7 @@ boolean NRF24::powerDown()
     uint8_t reg = spiReadRegister(NRF24_REG_00_CONFIG);
     reg = reg &  ~NRF24_PWR_UP; //set the power up bit to 0
     spiWriteRegister(NRF24_REG_00_CONFIG, reg);
-
+	
 	digitalWrite(_chipEnablePin, LOW);
 	digitalWrite(_chipSelectPin, LOW);
 	
