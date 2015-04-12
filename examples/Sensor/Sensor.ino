@@ -47,7 +47,7 @@ void setup() {
   Serial.begin(57600);
   Serial.println("pIoT example, acting as Sensor");
 
-  if (!startRadio(9, 10, nodeAddress)) Serial.println("Cannot start radio");
+  if (!startRadio(9, 10, 8, nodeAddress)) Serial.println("Cannot start radio");
 }
 
 

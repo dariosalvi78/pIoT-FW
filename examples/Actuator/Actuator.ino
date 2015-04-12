@@ -59,7 +59,7 @@ void setup() {
 
   Serial.println("pIoT example, acting as Actuator");
 
-  if (!startRadio(9, 10, nodeAddress)) Serial.println("Cannot start radio");
+  if (!startRadio(9, 10, 8, nodeAddress)) Serial.println("Cannot start radio");
 }
 
 /** Handles incoming messages from the network.

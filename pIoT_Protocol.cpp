@@ -32,7 +32,7 @@ unsigned long sentCounter;
 unsigned long unsentCounter;
 unsigned long receivedCounter;
 
-boolean startRadio(byte chipEnablePin, byte chipSelectPin, long myAdd) {
+boolean startRadio(byte chipEnablePin, byte chipSelectPin, byte powerPin, long myAdd) {
     long brdcst = BROADCAST_ADDR;
     broadCastAddress[0] =  brdcst & 0xFF ;
     broadCastAddress[1] = (brdcst >> 8) & 0xFF;
@@ -45,7 +45,7 @@ boolean startRadio(byte chipEnablePin, byte chipSelectPin, long myAdd) {
     thisAddress[3] = (myAdd >> 24) & 0xFF;
 
     //Init the nrf24
-	nRF24.configure(chipEnablePin, chipSelectPin);
+    nRF24.configure(chipEnablePin, chipSelectPin, powerPin);
     nRF24.powerUpIdle();
     if(!nRF24.setChannel(RF_CHANNEL)) return false;
     //set dynamic payload size
@@ -59,7 +59,7 @@ boolean startRadio(byte chipEnablePin, byte chipSelectPin, long myAdd) {
     if(!nRF24.setRF(NRF24::NRF24DataRate2Mbps, NRF24::NRF24TransmitPower0dBm)) return false;
     //Configure pipes
 	if(!nRF24.enablePipe(0)) return false;
-	if(!nRF24.enablePipe(1)) return false;	
+	if(!nRF24.enablePipe(1)) return false;
     if(!nRF24.setPipeAddress(0, broadCastAddress)) return false;
 	if(!nRF24.setPipeAddress(1, thisAddress)) return false;
     if(!nRF24.setAutoAck(0, true)) return false;
@@ -74,7 +74,7 @@ boolean stopRadio(){
 
 boolean send(boolean broadcast, long destination, unsigned int msgType, byte* data, int len){
 	if(len > 26) return false;
-	
+
 	if(!nRF24.powerUpTx()) return false;
 
     if(broadcast){
@@ -102,22 +102,22 @@ boolean send(boolean broadcast, long destination, unsigned int msgType, byte* da
         pkt[i+6] = data[i];
     }
     boolean justsent = nRF24.send(pkt, totlen, broadcast);
-	
+
 	if(justsent) sentCounter++;
 	else unsentCounter ++;
-	
+
 	return justsent;
 }
 
 boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender, unsigned int msgType, byte* data, int len)){
-    
+
 	if(!nRF24.powerUpRx())
 		return false;
-	
+
 	if(timeoutMS >0){
 		nRF24.waitAvailableTimeout(timeoutMS);
-	} 
-    
+	}
+
 	boolean broadcast;
     long sender;
     unsigned int msgType;
@@ -125,7 +125,7 @@ boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender
     byte buffer[NRF24_MAX_MESSAGE_LEN];
     byte totlen;
     byte pipe;
-	
+
 	if(nRF24.recv(&pipe, buffer, &totlen)){
         broadcast = (pipe == BROADCAST_PIPE);
         sender = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
@@ -134,7 +134,7 @@ boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender
         byte data[len];
         for(int i=0; i<len; i++)
             data[i] = buffer[i+6];
-		
+
 		receivedCounter ++;
         f(broadcast,sender, msgType, data, len);
         return true;

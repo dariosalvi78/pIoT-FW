@@ -52,7 +52,7 @@ void setup() {
   Serial.begin(57600);
   Serial.println("pIoT example, acting as Base");
 
-  if (!startRadio(9, 10, BASE_ADDR)) {
+  if (!startRadio(9, 10, -1, BASE_ADDR)) {
     Serial.println("{\"Error\": { \"severity\": 2, \"message\": \"Base cannot start radio\"}}");
   }
 }
