@@ -8,7 +8,10 @@
 #include <nRF24.h>
 
 //Comment this to act as a receiver
-//#define SENDER
+#define SENDER
+
+//digital pin used to powerup the NRF24 module, use -1 if none
+byte powerpin = 8;
 
 //Used pipe, chhose 0 to 5
 byte pipe = 0;
@@ -22,6 +25,7 @@ boolean autoAcks = true;
 byte delays = 2;
 //retransmissions, 0 to 15
 byte retries = 5;
+unsigned long sleep = 1000;
 //data rate: NRF24DataRate1Mbps, NRF24DataRate2Mbps, NRF24DataRate250kbps
 NRF24::NRF24DataRate datarate = NRF24::NRF24DataRate2Mbps;
 //transmit power: NRF24TransmitPowerm18dBm, 12dBm, 6dBm, 0dbm
@@ -41,7 +45,7 @@ void setup() {
   Serial.println("acting as receiver");
 #endif
 
-  nRF24.configure(9, 10);
+  nRF24.configure(9, 10, powerpin);
   Serial.print(nRF24.powerUpIdle());
   Serial.print(nRF24.setChannel(rfchannel));
   Serial.print(nRF24.setPayloadSize(pipe, 0));
@@ -83,7 +87,7 @@ void loop() {
   Serial.print(", lost ");
   Serial.println(lost);
   nRF24.powerDown();
-  delay(1000);
+  delay(sleep);
 #else
   nRF24.waitAvailable(); //waits forever, until a packet is received
   byte buff[50];

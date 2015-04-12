@@ -65,6 +65,7 @@ boolean send(boolean broadcast, long destination, unsigned int msgType, byte* da
  * - msgType the message type
  * - data the payload
  * - len the length of the payload
+ * @return true if something arrived
  */
 boolean receive(unsigned int timeoutMS, void (*f)(boolean broadcast, long sender, unsigned int msgType, byte* data, int len));
 

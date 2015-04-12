@@ -24,24 +24,26 @@
 //Static init of variables
 uint8_t NRF24::_chipEnablePin = 9;
 uint8_t NRF24::_chipSelectPin = 10;
+uint8_t NRF24::_powerPin = -1;
 uint8_t * NRF24::pipe0Address = NULL;
 NRF24::NRF24PowerStatus NRF24::powerstatus = NRF24PowerDown;
 
 
-void NRF24::configure(uint8_t chipEnablePin, uint8_t chipSelectPin)
+void NRF24::configure(uint8_t chipEnablePin, uint8_t chipSelectPin, uint8_t powerPin)
 {
     _chipEnablePin = chipEnablePin;
     _chipSelectPin = chipSelectPin;
-	
+    _powerPin = powerPin;
+
 	pinMode(_chipEnablePin, OUTPUT);
 	pinMode(_chipSelectPin, OUTPUT);
-		
+
 	pinMode(SCK, OUTPUT);
 	pinMode(MOSI, OUTPUT);
-		
+
 	SPI.setDataMode(SPI_MODE0);
 	SPI.setBitOrder(MSBFIRST);
-    
+
 	//SPI.setClockDivider(SPI_2XCLOCK_MASK); // 1 MHz SPI clock
 	SPI.setClockDivider(SPI_CLOCK_DIV2); // 8MHz SPI clock
 }
@@ -49,16 +51,21 @@ void NRF24::configure(uint8_t chipEnablePin, uint8_t chipSelectPin)
 
 boolean NRF24::powerUpIdle(){
 	if(powerstatus == NRF24PowerUpIdle) return true;
-	
+
 	if(powerstatus == NRF24PowerDown){
+
 		digitalWrite(_chipEnablePin, LOW);
 		digitalWrite(_chipSelectPin, HIGH);
-	
+
+    if(_powerPin >=0){
+      digitalWrite(_powerPin, HIGH);
+      delay(300);//additional delay for bringing up the chip
+    }
 		delay(100);
-		
+
 		// start the SPI library:
 		SPI.begin();
-		
+
 		//Enables dynamic payloads and dynamic acks always
 		spiWriteRegister(NRF24_REG_1D_FEATURE, NRF24_EN_DPL | NRF24_EN_DYN_ACK);
 	}
@@ -68,41 +75,44 @@ boolean NRF24::powerUpIdle(){
 	uint8_t reg = spiReadRegister(NRF24_REG_00_CONFIG);
     reg = reg &  ~NRF24_PWR_UP; //set the power up bit to 0
     spiWriteRegister(NRF24_REG_00_CONFIG, reg);
-	
+
 	if((spiReadRegister(NRF24_REG_00_CONFIG) & NRF24_PWR_UP) != 0)
 		return false;
-		
+
 	powerstatus = NRF24PowerUpIdle;
 	return true;
 }
 
 boolean NRF24::powerDown()
 {
-    uint8_t reg = spiReadRegister(NRF24_REG_00_CONFIG);
-    reg = reg &  ~NRF24_PWR_UP; //set the power up bit to 0
-    spiWriteRegister(NRF24_REG_00_CONFIG, reg);
-	
+  uint8_t reg = spiReadRegister(NRF24_REG_00_CONFIG);
+  reg = reg &  ~NRF24_PWR_UP; //set the power up bit to 0
+  spiWriteRegister(NRF24_REG_00_CONFIG, reg);
+
 	digitalWrite(_chipEnablePin, LOW);
 	digitalWrite(_chipSelectPin, LOW);
-	
+
 	SPI.end();
-		
+
 	digitalWrite(SCK, LOW);
 	digitalWrite(MOSI, LOW);
-	
+
+  if(_powerPin >=0)
+    digitalWrite(_powerPin, LOW);
+
 	powerstatus = NRF24PowerDown;
-    return true;
+  return true;
 }
 
 boolean NRF24::powerUpRx()
 {
 	if(powerstatus == NRF24PowerUpRX) return true;
 	if(powerstatus == NRF24PowerDown) powerUpIdle();
-	
+
 	uint8_t reg = spiReadRegister(NRF24_REG_00_CONFIG);
     reg = (reg | NRF24_PWR_UP) | NRF24_PRIM_RX;
     spiWriteRegister(NRF24_REG_00_CONFIG, reg);
-	
+
     //restore pipe 0 if any
     if(pipe0Address != NULL)
         if(!setPipeAddress(0, pipe0Address))
@@ -115,11 +125,11 @@ boolean NRF24::powerUpRx()
 
     //wait the radio to come up
     delayMicroseconds(130);
-	
+
 	reg = spiReadRegister(NRF24_REG_00_CONFIG);
     if(((reg & NRF24_PWR_UP) == 0) || ((reg & NRF24_PRIM_RX) == 0))
         return false;
-	
+
 	powerstatus = NRF24PowerUpRX;
     return true;
 }
@@ -140,11 +150,11 @@ boolean NRF24::powerUpTx()
     digitalWrite(_chipEnablePin, HIGH);
     //wait the radio to come up
     delayMicroseconds(130);
-	
+
 	reg = spiReadRegister(NRF24_REG_00_CONFIG);
     if(((reg & NRF24_PWR_UP) == 0) || ((reg & NRF24_PRIM_RX) != 0))
         return true;//already in TX
-	
+
 	powerstatus = NRF24PowerUpTX;
     return true;
 }
@@ -530,21 +540,21 @@ boolean NRF24::setIRQMask(boolean mask_RX, boolean mask_TX, boolean mask_MAX_RT)
     } else {
         reg = reg & ~NRF24_MASK_RX_DR;
     }
-	
+
 	if(mask_TX) {
 		reg = reg | NRF24_MASK_TX_DS;
     } else {
         reg = reg & ~NRF24_MASK_TX_DS;
     }
-	
+
 	if(mask_MAX_RT) {
 		reg = reg | NRF24_MASK_MAX_RT;
     } else {
         reg = reg & ~NRF24_MASK_MAX_RT;
     }
-    
+
     spiWriteRegister(NRF24_REG_00_CONFIG, reg);
-	
+
 	return (getIRQMaskRX() == mask_RX) &&
 		(getIRQMaskTX() == mask_TX) &&
 		(getIRQMaskRT() == mask_MAX_RT);
@@ -554,7 +564,7 @@ boolean NRF24::getIRQMaskRX(){
 	uint8_t reg = spiReadRegister(0);
 	return ((reg & NRF24_MASK_RX_DR) != 0);
 }
-	
+
 boolean NRF24::getIRQMaskTX(){
 	uint8_t reg = spiReadRegister(0);
 	return ((reg & NRF24_MASK_TX_DS) != 0);
@@ -568,7 +578,7 @@ boolean NRF24::getIRQMaskRT(){
 boolean NRF24::send(uint8_t* data, uint8_t len, boolean noack)
 {
     powerUpTx(); //set to transmit mode
-	
+
 	if(! noack)  //if ack is set
     {
         //Set both TX_ADDR and RX_ADDR_P0 for auto-ack with Enhanced ShockBurst:
@@ -581,7 +591,7 @@ boolean NRF24::send(uint8_t* data, uint8_t len, boolean noack)
         if(getTransmitAddress(addr))
 			setPipeAddress(0, addr);
     }
-	
+
     spiBurstWrite(noack ? NRF24_COMMAND_W_TX_PAYLOAD_NOACK : NRF24_COMMAND_W_TX_PAYLOAD, data, len);//send data
     //signal send
     //digitalWrite(_chipEnablePin, LOW);
@@ -639,7 +649,7 @@ boolean NRF24::waitAvailableTimeout(uint16_t timeout)
 {
     if(!powerUpRx())
         return false;
-	
+
     unsigned long starttime = millis();
     while ((millis() - starttime) < timeout)
 	{
@@ -654,7 +664,7 @@ boolean NRF24::recv(uint8_t* pipe, uint8_t* buf, uint8_t* len)
     // 0 microsecs @ 8MHz SPI clock
     if (!available())
         return false;
-		
+
     // Clear read interrupt
     spiWriteRegister(NRF24_REG_07_STATUS, NRF24_RX_DR);
 
@@ -682,4 +692,3 @@ void NRF24::printRegisters()
         Serial.println(spiReadRegister(i), HEX);
     }
 }
-

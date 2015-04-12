@@ -179,7 +179,7 @@ public:
     typedef enum
     {
         NRF24PowerDown = 0,   /** powered down */
-		NRF24PowerUpIdle,	  /** powered up but idle **/
+		    NRF24PowerUpIdle,	  /** powered up but idle **/
         NRF24PowerUpRX,       /** powered up and receiving **/
         NRF24PowerUpTX        /** powered up and transmitting */
     } NRF24PowerStatus;
@@ -226,15 +226,16 @@ public:
      * powerUpIdle() must be called to initialise the interface and the radio module
      * @param chipEnablePin the Arduino pin to use to enable the chip for transmit/receive
      * @param chipSelectPin the Arduino pin number of the output to use to select the NRF24 before
+     * @param powerPin the Arduino digital pin number used for powering up the NRF24 module
      * accessing it
      */
-    static void configure(uint8_t chipEnablePin = 9, uint8_t chipSelectPin = 10);
-	
+    static void configure(uint8_t chipEnablePin = 9, uint8_t chipSelectPin = 10, uint8_t powerPin = -1);
+
 	/** Powers the device up in idle mode.
 	 * @return true if really powered up
 	 */
 	static boolean powerUpIdle();
-	
+
 	/** Sets the radio in power down mode.
      * Sets chip enable to LOW.
      * @return true on success
@@ -420,19 +421,19 @@ public:
      * @return returns the NRF24TransmitPower enum
      */
     static NRF24TransmitPower getTransmitPower();
-	
+
 	/** Says if the IRQ mask is set on RX
 	 */
 	static boolean getIRQMaskRX();
-	
+
 	/** Says if the IRQ mask is set on TX
 	 */
 	static boolean getIRQMaskTX();
-	
+
 	/** Says if the IRQ mask is set on RT
 	 */
 	static boolean getIRQMaskRT();
-	
+
 	/** Sets the IRQ mask
 	 * @param mask_RX masks the receive
 	 * @param mask_TX masks the data sent
@@ -501,8 +502,9 @@ protected:
 private:
     static uint8_t _chipEnablePin;
     static uint8_t _chipSelectPin;
+    static uint8_t _powerPin;
     static uint8_t * pipe0Address;
-	static NRF24PowerStatus powerstatus;
+	  static NRF24PowerStatus powerstatus;
 
     /** Handlers of received packet, one per pipe.
      */
