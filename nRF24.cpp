@@ -85,6 +85,8 @@ boolean NRF24::powerUpIdle(){
 
 boolean NRF24::powerDown()
 {
+  if (powerstatus == NRF24PowerDown)
+	  return true;
   uint8_t reg = spiReadRegister(NRF24_REG_00_CONFIG);
   reg = reg &  ~NRF24_PWR_UP; //set the power up bit to 0
   spiWriteRegister(NRF24_REG_00_CONFIG, reg);
