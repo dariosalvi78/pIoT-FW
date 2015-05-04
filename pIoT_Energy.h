@@ -20,6 +20,11 @@
  */
 void reset();
 
+/**
+ * Puts all the pincs of the MCU to low
+ */
+void powerDownAllPins();
+
 /** Put the MCU into sleep mode until wither a certain time has passed or a pin has changed.
  * Powers down everything, radio and MCU.
  * @param seconds the number of seconds after which we want the board to wakeup.

@@ -44,12 +44,12 @@ struct lightMessage {
 
 
 void setup() {
+  powerDownAllPins();
   Serial.begin(57600);
   Serial.println("pIoT example, acting as Sensor");
 
   if (!startRadio(9, 10, 8, nodeAddress)) Serial.println("Cannot start radio");
 }
-
 
 void loop() {
   //The loop sends an hello message,
@@ -82,4 +82,3 @@ void loop() {
   stopRadio(); //you have to shut down the radio explicitly
   sleepUntil(sleepTime, 0);
 }
-

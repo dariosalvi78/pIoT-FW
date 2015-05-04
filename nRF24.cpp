@@ -91,18 +91,18 @@ boolean NRF24::powerDown()
   reg = reg &  ~NRF24_PWR_UP; //set the power up bit to 0
   spiWriteRegister(NRF24_REG_00_CONFIG, reg);
 
-	digitalWrite(_chipEnablePin, LOW);
-	digitalWrite(_chipSelectPin, LOW);
+  digitalWrite(_chipEnablePin, LOW);
+  digitalWrite(_chipSelectPin, LOW);
 
-	SPI.end();
-
-	digitalWrite(SCK, LOW);
-	digitalWrite(MOSI, LOW);
+  SPI.end();
 
   if(_powerPin >=0)
     digitalWrite(_powerPin, LOW);
 
-	powerstatus = NRF24PowerDown;
+  digitalWrite(SCK, LOW);
+  digitalWrite(MOSI, LOW);
+
+  powerstatus = NRF24PowerDown;
   return true;
 }
 

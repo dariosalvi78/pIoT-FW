@@ -21,6 +21,29 @@ extern "C"
 
 void(* resetf) (void) = 0;
 
+void powerDownAllPins(){
+  pinMode(0, INPUT); digitalWrite(0, LOW);
+  pinMode(1, INPUT); digitalWrite(1, LOW);
+  pinMode(2, INPUT); digitalWrite(2, LOW);
+  pinMode(3, INPUT); digitalWrite(3, LOW);
+  pinMode(4, INPUT); digitalWrite(4, LOW);
+  pinMode(5, INPUT); digitalWrite(5, LOW);
+  pinMode(6, INPUT); digitalWrite(6, LOW);
+  pinMode(7, INPUT); digitalWrite(7, LOW);
+  pinMode(8, INPUT); digitalWrite(8, LOW);
+  pinMode(9, INPUT); digitalWrite(9, LOW);
+  pinMode(10, INPUT); digitalWrite(10, LOW);
+  pinMode(11, INPUT); digitalWrite(11, LOW);
+  pinMode(12, INPUT); digitalWrite(12, LOW);
+  pinMode(13, INPUT); digitalWrite(13, LOW);
+  pinMode(A0, INPUT); digitalWrite(A0, LOW);
+  pinMode(A1, INPUT); digitalWrite(A1, LOW);
+  pinMode(A2, INPUT); digitalWrite(A2, LOW);
+  pinMode(A3, INPUT); digitalWrite(A3, LOW);
+  pinMode(A4, INPUT); digitalWrite(A4, LOW);
+  pinMode(A5, INPUT); digitalWrite(A5, LOW);
+}
+
 void reset(){
     resetf();
 }
@@ -94,7 +117,7 @@ void sleepUntil(int seconds, int pinsN, ...){
 
     //make sure we don't get interrupted before we sleep
     noInterrupts ();
-	
+
 	//power off ADC
 	ADCSRA &= ~(1<<ADEN);
 
@@ -164,8 +187,8 @@ void sleepUntil(int seconds, int pinsN, ...){
             PCICR &= ~(1 << pinToIE(pins[i]));
         }
     }
-	
-	
+
+
 	//restore ADC
 	ADCSRA |= (1<<ADEN);  // adc on
 
