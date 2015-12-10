@@ -57,6 +57,7 @@ On the base:
 Brief API description
 ---------------------
 
+* `powerDownAllPins()` switches off all pins
 *  `startRadio(byte chipEnablePin, byte chipSelectPin, byte irqpin, long myAddress)` is used to initialize the radio module
 *  `stopRadio()` powers down the radio module
 *  `send(boolean broadcast, long destination, unsigned int msgType, byte* data, int len)` for sending packets, note the identifier of the message: msgType
